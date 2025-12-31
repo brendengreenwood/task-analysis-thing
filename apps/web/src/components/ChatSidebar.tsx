@@ -16,7 +16,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
   const currentProject = getCurrentProject();
 
   const { messages, input, handleInputChange, isLoading, error, append, setInput } = useChat({
-    api: '/api/agents/task-analysis-agent/stream',
+    api: '/chat/task-analysis-agent',
     onFinish: (message) => {
       // Process tool invocations after the message is complete
       if (message.toolInvocations) {
