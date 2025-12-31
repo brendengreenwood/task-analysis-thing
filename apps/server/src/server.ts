@@ -3,6 +3,7 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { HonoBindings, HonoVariables, MastraServer } from '@mastra/hono';
+import { toAISdkStream } from '@mastra/ai-sdk';
 
 import { mastra } from './mastra';
 
@@ -22,6 +23,37 @@ app.use('*', cors({
 const server = new MastraServer({ app, mastra });
 
 await server.init();
+
+// Chat endpoint for AI SDK streaming
+app.post('/chat/:agentId', async (c) => {
+  const agentId = c.req.param('agentId');
+  const { messages } = await c.req.json();
+
+  const agent = mastra.getAgent(agentId);
+  if (!agent) {
+    return c.json({ error: `Agent ${agentId} not found` }, 404);
+  }
+
+  const agentStream = await agent.stream(messages);
+
+  // Convert Mastra stream to AI SDK format
+  const readableStream = new ReadableStream({
+    async start(controller) {
+      for await (const part of toAISdkStream(agentStream, { from: 'agent' })) {
+        controller.enqueue(new TextEncoder().encode(JSON.stringify(part) + '\n'));
+      }
+      controller.close();
+    },
+  });
+
+  return new Response(readableStream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
+});
 
 // Health check endpoint
 app.get('/health', (c) => {

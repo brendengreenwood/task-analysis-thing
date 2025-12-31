@@ -257,6 +257,9 @@ export function useAgentActions() {
         case 'bulkAdd': {
           const { items } = actionData.payload;
 
+          // Helper to get fresh state after mutations
+          const getState = () => useStore.getState();
+
           // Track created IDs for nested items
           const createdActivityIds: Map<number, string> = new Map();
           const createdTaskIds: Map<string, string> = new Map();
@@ -265,8 +268,8 @@ export function useAgentActions() {
             if (item.type === 'activity') {
               addActivity(projectId, item.name);
 
-              // Get the newly created activity
-              const updatedProject = projects.find((p) => p.id === projectId);
+              // Get the newly created activity from fresh state
+              const updatedProject = getState().projects.find((p) => p.id === projectId);
               const newActivity = updatedProject?.activities[updatedProject.activities.length - 1];
 
               if (newActivity) {
@@ -281,7 +284,7 @@ export function useAgentActions() {
                   item.tasks.forEach((taskData, taskIndex) => {
                     addTask(projectId, newActivity.id, taskData.name);
 
-                    const refreshedProject = projects.find((p) => p.id === projectId);
+                    const refreshedProject = getState().projects.find((p) => p.id === projectId);
                     const refreshedActivity = refreshedProject?.activities.find(
                       (a) => a.id === newActivity.id
                     );
@@ -296,16 +299,23 @@ export function useAgentActions() {
 
                       // Add nested operations
                       if (taskData.operations) {
-                        taskData.operations.forEach((opData) => {
+                        taskData.operations.forEach((opData, opIndex) => {
+                          const beforeTask = getState().projects
+                            .find((p) => p.id === projectId)
+                            ?.activities.find((a) => a.id === newActivity.id)
+                            ?.tasks.find((t) => t.id === newTask.id);
+                          const opCountBefore = beforeTask?.operations.length || 0;
+
                           addOperation(projectId, newActivity.id, newTask.id, opData.name);
 
                           if (opData.detail) {
-                            const refProject = projects.find((p) => p.id === projectId);
+                            const refProject = getState().projects.find((p) => p.id === projectId);
                             const refActivity = refProject?.activities.find(
                               (a) => a.id === newActivity.id
                             );
                             const refTask = refActivity?.tasks.find((t) => t.id === newTask.id);
-                            const newOp = refTask?.operations[refTask.operations.length - 1];
+                            const newOp = refTask?.operations[opCountBefore];
+                            console.log(`[BULK-ADD activity] Op ${opIndex}: before=${opCountBefore}, after=${refTask?.operations.length}, newOp=`, newOp?.id);
                             if (newOp) {
                               editOperationDetail(
                                 projectId,
@@ -325,7 +335,7 @@ export function useAgentActions() {
             } else if (item.type === 'task' && item.activityId) {
               addTask(projectId, item.activityId, item.name);
 
-              const updatedProject = projects.find((p) => p.id === projectId);
+              const updatedProject = getState().projects.find((p) => p.id === projectId);
               const activity = updatedProject?.activities.find((a) => a.id === item.activityId);
               const newTask = activity?.tasks[activity.tasks.length - 1];
 
@@ -336,16 +346,27 @@ export function useAgentActions() {
 
                 // Add nested operations
                 if (item.operations) {
-                  item.operations.forEach((opData) => {
+                  item.operations.forEach((opData, opIndex) => {
+                    const beforeState = getState();
+                    const beforeTask = beforeState.projects
+                      .find((p) => p.id === projectId)
+                      ?.activities.find((a) => a.id === item.activityId)
+                      ?.tasks.find((t) => t.id === newTask.id);
+                    const opCountBefore = beforeTask?.operations.length || 0;
+
                     addOperation(projectId, item.activityId!, newTask.id, opData.name);
 
                     if (opData.detail) {
-                      const refProject = projects.find((p) => p.id === projectId);
+                      const refProject = getState().projects.find((p) => p.id === projectId);
                       const refActivity = refProject?.activities.find(
                         (a) => a.id === item.activityId
                       );
                       const refTask = refActivity?.tasks.find((t) => t.id === newTask.id);
-                      const newOp = refTask?.operations[refTask.operations.length - 1];
+
+                      // Find the operation we just added (should be the one at opCountBefore index)
+                      const newOp = refTask?.operations[opCountBefore];
+                      console.log(`[BULK-ADD] Op ${opIndex}: before=${opCountBefore}, after=${refTask?.operations.length}, newOp=`, newOp?.id, 'detail=', opData.detail);
+
                       if (newOp) {
                         editOperationDetail(
                           projectId,
@@ -360,13 +381,19 @@ export function useAgentActions() {
                 }
               }
             } else if (item.type === 'operation' && item.activityId && item.taskId) {
+              const beforeTask = getState().projects
+                .find((p) => p.id === projectId)
+                ?.activities.find((a) => a.id === item.activityId)
+                ?.tasks.find((t) => t.id === item.taskId);
+              const opCountBefore = beforeTask?.operations.length || 0;
+
               addOperation(projectId, item.activityId, item.taskId, item.name);
 
               if (item.detail) {
-                const updatedProject = projects.find((p) => p.id === projectId);
+                const updatedProject = getState().projects.find((p) => p.id === projectId);
                 const activity = updatedProject?.activities.find((a) => a.id === item.activityId);
                 const task = activity?.tasks.find((t) => t.id === item.taskId);
-                const newOp = task?.operations[task.operations.length - 1];
+                const newOp = task?.operations[opCountBefore];
                 if (newOp) {
                   editOperationDetail(
                     projectId,
