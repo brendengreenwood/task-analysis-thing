@@ -1,10 +1,9 @@
-import { anthropic } from '@ai-sdk/anthropic';
-import { Agent } from '@mastra/core/agent';
-import { tools } from '../tools';
+import { Agent } from "@mastra/core/agent";
+import { tools } from "../tools";
 
 export const taskAnalysisAgent = new Agent({
-  id: 'task-analysis-agent',
-  name: 'Task Analysis Agent',
+  id: "task-analysis-agent",
+  name: "Task Analysis Agent",
   instructions: `You are a helpful assistant that helps users capture and organize their work into a structured hierarchy of activities, tasks, and operations.
 
 ## Understanding the Hierarchy
@@ -37,6 +36,6 @@ After making changes, briefly summarize what you did. For example:
 - "I've created 3 operations under the 'Implement Login' task for the validation steps."
 
 Be helpful and proactive in suggesting structure, but always let the user have final say on how to organize their work.`,
-  model: anthropic('claude-sonnet-4-20250514'),
+  model: "anthropic/claude-sonnet-4-5",
   tools,
 });

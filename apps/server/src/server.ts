@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
@@ -7,9 +8,14 @@ import { mastra } from './mastra';
 
 const app = new Hono<{ Bindings: HonoBindings; Variables: HonoVariables }>();
 
-// Enable CORS for frontend
+// Enable CORS for frontend (allow any localhost port in development)
 app.use('*', cors({
-  origin: ['http://localhost:5173', 'http://localhost:4173'],
+  origin: (origin) => {
+    if (!origin || origin.startsWith('http://localhost:')) {
+      return origin || '*';
+    }
+    return null;
+  },
   credentials: true,
 }));
 
