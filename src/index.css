@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Always show scrollbar to prevent layout shifts */
+html {
+  overflow-y: scroll;
+}
+
+.dragging {
+  @apply scale-[1.02] rotate-1;
+}
+
+.dragging > div {
+  @apply shadow-xl ring-2 ring-blue-400 !important;
+}
+
+.drop-indicator {
+  transform-origin: center;
+  transition: transform 0.2s ease-in-out;
+}
