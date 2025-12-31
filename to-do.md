@@ -1,0 +1,4 @@
+- get all of this working outside of local host
+- i dont want random people to spam the assistant chat and cost me a lot of money
+  -- maybe a special url
+  -- need someway to not let pepple spam my token

@@ -8,5 +8,8 @@
     "dev:server": "pnpm --filter @task-analyzer/server dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint"
+  },
+  "dependencies": {
+    "@mastra/loggers": "1.0.0-beta.3"
   }
 }

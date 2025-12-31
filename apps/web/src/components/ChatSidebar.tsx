@@ -1,42 +1,40 @@
-import React, { useEffect, useRef } from 'react';
-import { useChat } from '@ai-sdk/react';
-import { MessageSquare, Send, X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { MastraClient } from '@mastra/client-js';
+import { MessageSquare, Send, X, Loader2 } from 'lucide-react';
 import { useAgentActions } from '../hooks/useAgentActions';
+
+interface ToolCall {
+  toolName: string;
+  status: 'pending' | 'complete';
+  result?: unknown;
+}
+
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  toolCalls?: ToolCall[];
+}
 
 interface ChatSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
 }
 
+const client = new MastraClient({
+  baseUrl: 'http://localhost:4111',
+});
+
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) => {
   const { dispatchAction, getProjectContext, getCurrentProject } = useAgentActions();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const currentProject = getCurrentProject();
-
-  const { messages, input, handleInputChange, isLoading, error, append, setInput } = useChat({
-    api: '/chat/task-analysis-agent',
-    onFinish: (message) => {
-      // Process tool invocations after the message is complete
-      if (message.toolInvocations) {
-        for (const toolInvocation of message.toolInvocations) {
-          if (toolInvocation.state === 'result' && toolInvocation.result) {
-            try {
-              const actionData = toolInvocation.result as {
-                action: string;
-                payload?: unknown;
-                context?: unknown;
-              };
-              dispatchAction(actionData as Parameters<typeof dispatchAction>[0]);
-            } catch (e) {
-              console.error('Error dispatching action:', e);
-            }
-          }
-        }
-      }
-    },
-  });
 
   // Build context string to prepend to messages
   const buildContextString = () => {
@@ -78,17 +76,95 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    // Include project context with the user message
+    const userMessage = input.trim();
     const contextStr = buildContextString();
-    const messageWithContext = input.trim() + contextStr;
+    const messageWithContext = userMessage + contextStr;
 
-    // Clear input and send message with context
+    // Add user message to UI (show without context)
+    const userMsgId = Date.now().toString();
+    setMessages(prev => [...prev, { id: userMsgId, role: 'user', content: userMessage }]);
     setInput('');
+    setIsLoading(true);
+    setError(null);
 
-    await append({
-      role: 'user',
-      content: messageWithContext,
-    });
+    try {
+      const agent = client.getAgent('task-analysis-agent');
+      const response = await agent.stream({
+        messages: [
+          ...messages.map(m => ({
+            role: m.role as 'user' | 'assistant',
+            content: m.content,
+          })),
+          { role: 'user' as const, content: messageWithContext },
+        ],
+      });
+
+      let assistantContent = '';
+      const toolCalls: ToolCall[] = [];
+      const assistantMsgId = (Date.now() + 1).toString();
+
+      // Add empty assistant message that we'll update
+      setMessages(prev => [...prev, { id: assistantMsgId, role: 'assistant', content: '', toolCalls: [] }]);
+
+      await response.processDataStream({
+        onChunk: async (chunk: { type: string; payload?: unknown }) => {
+          console.log('[STREAM] chunk:', chunk.type, chunk.payload);
+
+          if (chunk.type === 'text-delta') {
+            const payload = chunk.payload as { text: string };
+            assistantContent += payload.text;
+            setMessages(prev =>
+              prev.map(m =>
+                m.id === assistantMsgId ? { ...m, content: assistantContent } : m
+              )
+            );
+          } else if (chunk.type === 'tool-call') {
+            // Tool call started - show pending state
+            const payload = chunk.payload as { toolName: string };
+            toolCalls.push({ toolName: payload.toolName, status: 'pending' });
+            setMessages(prev =>
+              prev.map(m =>
+                m.id === assistantMsgId ? { ...m, toolCalls: [...toolCalls] } : m
+              )
+            );
+          } else if (chunk.type === 'tool-result') {
+            // Tool call completed - update to complete state
+            const payload = chunk.payload as { toolName: string; result: unknown };
+            const existingIdx = toolCalls.findIndex(
+              t => t.toolName === payload.toolName && t.status === 'pending'
+            );
+            if (existingIdx >= 0) {
+              toolCalls[existingIdx] = { toolName: payload.toolName, status: 'complete', result: payload.result };
+            } else {
+              toolCalls.push({ toolName: payload.toolName, status: 'complete', result: payload.result });
+            }
+            setMessages(prev =>
+              prev.map(m =>
+                m.id === assistantMsgId ? { ...m, toolCalls: [...toolCalls] } : m
+              )
+            );
+
+            // Dispatch the action to update the store
+            try {
+              const actionData = payload.result as {
+                action: string;
+                payload?: unknown;
+              };
+              if (actionData?.action) {
+                dispatchAction(actionData as Parameters<typeof dispatchAction>[0]);
+              }
+            } catch (e) {
+              console.error('Error dispatching action:', e);
+            }
+          }
+        },
+      });
+    } catch (err) {
+      console.error('Stream error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to get response');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -111,7 +187,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
   }
 
   return (
-    <div className="w-80 bg-white shadow-lg flex flex-col border-l border-gray-200">
+    <div className="w-80 h-screen sticky top-0 bg-white shadow-lg flex flex-col border-l border-gray-200">
       {/* Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b bg-gray-50">
         <div className="flex items-center gap-2">
@@ -169,24 +245,38 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
             >
               <div className="whitespace-pre-wrap">{message.content}</div>
 
-              {/* Show tool invocations */}
-              {message.toolInvocations && message.toolInvocations.length > 0 && (
+              {/* Show tool calls */}
+              {message.toolCalls && message.toolCalls.length > 0 && (
                 <div className="mt-2 pt-2 border-t border-gray-200 text-xs text-gray-500">
-                  {message.toolInvocations.map((tool, idx) => (
+                  {message.toolCalls.map((tool, idx) => (
                     <div key={idx} className="flex items-center gap-1">
-                      <span className="text-green-600">+</span>
-                      <span>
-                        {tool.toolName === 'add-activity' && 'Added activity'}
-                        {tool.toolName === 'add-task' && 'Added task'}
-                        {tool.toolName === 'add-operation' && 'Added operation'}
-                        {tool.toolName === 'edit-activity' && 'Updated activity'}
-                        {tool.toolName === 'edit-task' && 'Updated task'}
-                        {tool.toolName === 'edit-operation' && 'Updated operation'}
-                        {tool.toolName === 'delete-activity' && 'Deleted activity'}
-                        {tool.toolName === 'delete-task' && 'Deleted task'}
-                        {tool.toolName === 'delete-operation' && 'Deleted operation'}
-                        {tool.toolName === 'bulk-add' && 'Added multiple items'}
-                        {tool.toolName === 'get-project-context' && 'Reviewed project'}
+                      {tool.status === 'pending' ? (
+                        <Loader2 className="w-3 h-3 animate-spin text-blue-500" />
+                      ) : (
+                        <span className="text-green-600">✓</span>
+                      )}
+                      <span className={tool.status === 'pending' ? 'text-blue-600' : ''}>
+                        {(() => {
+                          const labels: Record<string, [string, string]> = {
+                            'add-activity': ['Adding activity...', 'Added activity'],
+                            'add-task': ['Adding task...', 'Added task'],
+                            'add-operation': ['Adding operation...', 'Added operation'],
+                            'edit-activity': ['Updating activity...', 'Updated activity'],
+                            'edit-task': ['Updating task...', 'Updated task'],
+                            'edit-operation': ['Updating operation...', 'Updated operation'],
+                            'delete-activity': ['Deleting activity...', 'Deleted activity'],
+                            'delete-task': ['Deleting task...', 'Deleted task'],
+                            'delete-operation': ['Deleting operation...', 'Deleted operation'],
+                            'bulk-add': ['Adding items...', 'Added multiple items'],
+                            'get-project-context': ['Reviewing project...', 'Reviewed project'],
+                          };
+                          const label = labels[tool.toolName];
+                          if (label) {
+                            return tool.status === 'pending' ? label[0] : label[1];
+                          }
+                          // Fallback: show raw tool name
+                          return tool.status === 'pending' ? `Calling ${tool.toolName}...` : `Called ${tool.toolName}`;
+                        })()}
                       </span>
                     </div>
                   ))}
@@ -207,7 +297,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
 
         {error && (
           <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2">
-            Error: {error.message}
+            Error: {error}
           </div>
         )}
 
@@ -220,7 +310,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
           <textarea
             ref={inputRef}
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={currentProject ? 'Describe your work...' : 'Select a project first'}
             disabled={!currentProject || isLoading}

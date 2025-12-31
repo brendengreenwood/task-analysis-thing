@@ -33,10 +33,14 @@ export const getProjectContextTool = createTool({
     action: z.literal('getContext'),
     context: projectContextSchema.nullable(),
   }),
-  execute: async ({ context }) => ({
-    action: 'getContext' as const,
-    context: context || null,
-  }),
+  execute: async ({ context }) => {
+    console.log('[TOOL] get-project-context called');
+    console.log('[TOOL] Context:', JSON.stringify(context, null, 2));
+    return {
+      action: 'getContext' as const,
+      context: context || null,
+    };
+  },
 });
 
 // Add Activity Tool
@@ -54,13 +58,16 @@ export const addActivityTool = createTool({
       overview: z.string(),
     }),
   }),
-  execute: async ({ name, overview }) => ({
-    action: 'addActivity' as const,
-    payload: {
-      name,
-      overview: overview || '',
-    },
-  }),
+  execute: async ({ name, overview }) => {
+    console.log('[TOOL] add-activity:', { name, overview });
+    return {
+      action: 'addActivity' as const,
+      payload: {
+        name,
+        overview: overview || '',
+      },
+    };
+  },
 });
 
 // Add Task Tool
@@ -80,14 +87,17 @@ export const addTaskTool = createTool({
       goal: z.string(),
     }),
   }),
-  execute: async ({ activityId, name, goal }) => ({
-    action: 'addTask' as const,
-    payload: {
-      activityId,
-      name,
-      goal: goal || '',
-    },
-  }),
+  execute: async ({ activityId, name, goal }) => {
+    console.log('[TOOL] add-task:', { activityId, name, goal });
+    return {
+      action: 'addTask' as const,
+      payload: {
+        activityId,
+        name,
+        goal: goal || '',
+      },
+    };
+  },
 });
 
 // Add Operation Tool
@@ -109,15 +119,18 @@ export const addOperationTool = createTool({
       detail: z.string(),
     }),
   }),
-  execute: async ({ activityId, taskId, name, detail }) => ({
-    action: 'addOperation' as const,
-    payload: {
-      activityId,
-      taskId,
-      name,
-      detail: detail || '',
-    },
-  }),
+  execute: async ({ activityId, taskId, name, detail }) => {
+    console.log('[TOOL] add-operation:', { activityId, taskId, name, detail });
+    return {
+      action: 'addOperation' as const,
+      payload: {
+        activityId,
+        taskId,
+        name,
+        detail: detail || '',
+      },
+    };
+  },
 });
 
 // Edit Activity Tool
@@ -137,14 +150,17 @@ export const editActivityTool = createTool({
       overview: z.string().optional(),
     }),
   }),
-  execute: async ({ activityId, name, overview }) => ({
-    action: 'editActivity' as const,
-    payload: {
-      activityId,
-      name,
-      overview,
-    },
-  }),
+  execute: async ({ activityId, name, overview }) => {
+    console.log('[TOOL] edit-activity:', { activityId, name, overview });
+    return {
+      action: 'editActivity' as const,
+      payload: {
+        activityId,
+        name,
+        overview,
+      },
+    };
+  },
 });
 
 // Edit Task Tool
@@ -166,15 +182,18 @@ export const editTaskTool = createTool({
       goal: z.string().optional(),
     }),
   }),
-  execute: async ({ activityId, taskId, name, goal }) => ({
-    action: 'editTask' as const,
-    payload: {
-      activityId,
-      taskId,
-      name,
-      goal,
-    },
-  }),
+  execute: async ({ activityId, taskId, name, goal }) => {
+    console.log('[TOOL] edit-task:', { activityId, taskId, name, goal });
+    return {
+      action: 'editTask' as const,
+      payload: {
+        activityId,
+        taskId,
+        name,
+        goal,
+      },
+    };
+  },
 });
 
 // Edit Operation Tool
@@ -198,16 +217,19 @@ export const editOperationTool = createTool({
       detail: z.string().optional(),
     }),
   }),
-  execute: async ({ activityId, taskId, operationId, name, detail }) => ({
-    action: 'editOperation' as const,
-    payload: {
-      activityId,
-      taskId,
-      operationId,
-      name,
-      detail,
-    },
-  }),
+  execute: async ({ activityId, taskId, operationId, name, detail }) => {
+    console.log('[TOOL] edit-operation:', { activityId, taskId, operationId, name, detail });
+    return {
+      action: 'editOperation' as const,
+      payload: {
+        activityId,
+        taskId,
+        operationId,
+        name,
+        detail,
+      },
+    };
+  },
 });
 
 // Delete Activity Tool
@@ -223,10 +245,13 @@ export const deleteActivityTool = createTool({
       activityId: z.string(),
     }),
   }),
-  execute: async ({ activityId }) => ({
-    action: 'deleteActivity' as const,
-    payload: { activityId },
-  }),
+  execute: async ({ activityId }) => {
+    console.log('[TOOL] delete-activity:', { activityId });
+    return {
+      action: 'deleteActivity' as const,
+      payload: { activityId },
+    };
+  },
 });
 
 // Delete Task Tool
@@ -244,10 +269,13 @@ export const deleteTaskTool = createTool({
       taskId: z.string(),
     }),
   }),
-  execute: async ({ activityId, taskId }) => ({
-    action: 'deleteTask' as const,
-    payload: { activityId, taskId },
-  }),
+  execute: async ({ activityId, taskId }) => {
+    console.log('[TOOL] delete-task:', { activityId, taskId });
+    return {
+      action: 'deleteTask' as const,
+      payload: { activityId, taskId },
+    };
+  },
 });
 
 // Delete Operation Tool
@@ -267,10 +295,13 @@ export const deleteOperationTool = createTool({
       operationId: z.string(),
     }),
   }),
-  execute: async ({ activityId, taskId, operationId }) => ({
-    action: 'deleteOperation' as const,
-    payload: { activityId, taskId, operationId },
-  }),
+  execute: async ({ activityId, taskId, operationId }) => {
+    console.log('[TOOL] delete-operation:', { activityId, taskId, operationId });
+    return {
+      action: 'deleteOperation' as const,
+      payload: { activityId, taskId, operationId },
+    };
+  },
 });
 
 // Bulk add tool for creating multiple items at once
@@ -317,10 +348,13 @@ export const bulkAddTool = createTool({
       items: z.array(z.any()),
     }),
   }),
-  execute: async ({ items }) => ({
-    action: 'bulkAdd' as const,
-    payload: { items },
-  }),
+  execute: async ({ items }) => {
+    console.log('[TOOL] bulk-add:', JSON.stringify(items, null, 2));
+    return {
+      action: 'bulkAdd' as const,
+      payload: { items },
+    };
+  },
 });
 
 export const tools = {
