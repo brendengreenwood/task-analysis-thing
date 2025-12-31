@@ -3,6 +3,7 @@ import { LayoutGrid, HelpCircle, Plus, ChevronLeft, ChevronRight } from 'lucide-
 import { Link, useLocation } from 'react-router-dom';
 import { HelpModal } from './HelpModal';
 import { AddItemForm } from './AddItemForm';
+import { ChatSidebar } from './ChatSidebar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [showNewProjectForm, setShowNewProjectForm] = React.useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const location = useLocation();
 
   return (
@@ -96,6 +98,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </div>
       </div>
+
+      {/* Chat Sidebar */}
+      <ChatSidebar isOpen={isChatOpen} onToggle={() => setIsChatOpen(!isChatOpen)} />
 
       <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} />
       

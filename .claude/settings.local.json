@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__mastra__mastraDocs",
+      "mcp__mastra__mastraExamples",
+      "Bash(pnpm install)",
+      "Bash(powershell -Command \"Get-ChildItem ''$env:LOCALAPPDATA\\\\Microsoft\\\\WinGet\\\\Links'' -ErrorAction SilentlyContinue\")",
+      "Bash(powershell -Command \"ls $env:LOCALAPPDATA\\\\Microsoft\\\\WinGet\\\\Links\\\\\")",
+      "Bash(powershell -Command 'ls $env:LOCALAPPDATA\\\\Microsoft\\\\WinGet\\\\Links\\\\')",
+      "Bash(powershell:*)"
+    ]
+  }
+}
