@@ -64,14 +64,16 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
   return (
     <div ref={setNodeRef} style={style} data-id={task.id}>
       <div
-        className={`bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden flex ${
-          isFocused ? 'ring-2 ring-green-400' : ''
+        className={`bg-[#0a0a0a] border border-zinc-700 overflow-hidden flex ${
+          isFocused ? 'ring-1 ring-emerald-500/40' : ''
         }`}
       >
-        <div className="w-1 bg-green-500 flex-shrink-0" />
+        <div className="w-1 bg-gradient-to-b from-emerald-500 to-teal-600 flex-shrink-0" />
         <div className="flex-grow">
           <div
-            className={`p-3 cursor-pointer hover:bg-gray-50`}
+            className={`p-3 cursor-pointer transition-colors ${
+              isFocused ? 'bg-emerald-950/30' : 'hover:bg-zinc-900'
+            }`}
             onClick={() => setFocusedItem({ id: task.id, level: 'task' })}
             onKeyDown={handleKeyDown}
             tabIndex={0}
@@ -81,21 +83,21 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
                 <button
                   {...attributes}
                   {...listeners}
-                  className="p-1 hover:bg-gray-100 rounded cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="p-1 hover:bg-zinc-800 cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  <GripVertical className="w-4 h-4 text-gray-500" />
+                  <GripVertical className="w-4 h-4 text-zinc-500" />
                 </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleExpanded(task.id, 'task');
                   }}
-                  className="p-1 hover:bg-gray-100 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="p-1 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   {task.expanded ? (
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="w-4 h-4 text-zinc-400" />
                   ) : (
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 text-zinc-400" />
                   )}
                 </button>
               </div>
@@ -103,12 +105,17 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
                 <EditableText
                   value={task.name}
                   onSave={(name) => editTask(projectId, activityId, task.id, name)}
-                  className="font-medium"
+                  className="font-medium text-zinc-200"
                 />
-                <div className="mt-0.5">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                    Task
+                <div className="mt-0.5 flex items-center gap-2">
+                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    task
                   </span>
+                  {task.operations.length > 0 && (
+                    <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs">
+                      {task.operations.length} {task.operations.length === 1 ? 'op' : 'ops'}
+                    </span>
+                  )}
                 </div>
               </div>
               <button
@@ -116,30 +123,30 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
                   e.stopPropagation();
                   setShowAddOperation(true);
                 }}
-                className="flex items-center px-2 py-1 text-xs border border-green-200 bg-green-50 hover:bg-green-100 text-green-700 rounded mr-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-colors"
+                className="flex items-center px-2 py-1 text-xs border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 mr-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 title="Alt+O"
               >
                 <Plus className="w-3 h-3 mr-1" />
-                Add Operation
+                add operation
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   deleteItem({ id: task.id, level: 'task' });
                 }}
-                className="w-[26px] h-[26px] flex items-center justify-center text-xs border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 rounded focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-colors"
+                className="w-[26px] h-[26px] flex items-center justify-center text-xs border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                 title="Delete (Alt+D)"
               >
                 <Trash className="w-3 h-3" />
               </button>
             </div>
             <div className="flex mt-2 ml-12">
-              <Target className="w-4 h-4 text-gray-500 mr-2 mt-1 flex-shrink-0" />
+              <Target className="w-4 h-4 text-zinc-500 mr-2 mt-1 flex-shrink-0" />
               <EditableText
                 value={task.goal}
                 onSave={(goal) => editTaskGoal(projectId, activityId, task.id, goal)}
-                className="flex-1 text-sm text-gray-600 italic"
-                placeholder="Add a goal..."
+                className="flex-1 text-sm text-zinc-400 italic"
+                placeholder="add goal..."
               />
             </div>
           </div>
@@ -148,7 +155,7 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="border-t border-gray-100 bg-gray-50 p-3"
+              className="border-t border-zinc-700 bg-zinc-900/50 p-3"
             >
               {showAddOperation && (
                 <AddItemForm
@@ -170,8 +177,8 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
                 ))}
               </div>
               {task.operations.length === 0 && !showAddOperation && isFocused && (
-                <div className="text-center text-gray-500 py-4">
-                  Press Alt+O to add your first operation
+                <div className="text-center text-zinc-500 py-4 text-sm">
+                  press alt+o to add operation
                 </div>
               )}
             </motion.div>

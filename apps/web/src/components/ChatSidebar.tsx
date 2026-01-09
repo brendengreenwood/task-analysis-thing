@@ -22,7 +22,7 @@ interface ChatSidebarProps {
 }
 
 const client = new MastraClient({
-  baseUrl: 'http://localhost:4111',
+  baseUrl: import.meta.env.VITE_MASTRA_API_URL || 'http://localhost:4111',
 });
 
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) => {
@@ -178,7 +178,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
     return (
       <button
         onClick={onToggle}
-        className="fixed right-4 bottom-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-50"
+        className="fixed right-4 bottom-4 bg-[#0a0a0a] border border-zinc-700 text-zinc-400 p-3 hover:bg-zinc-900 hover:text-zinc-300 transition-all z-50"
         title="Open AI Assistant"
       >
         <MessageSquare className="w-6 h-6" />
@@ -187,47 +187,42 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
   }
 
   return (
-    <div className="w-80 h-screen sticky top-0 bg-white shadow-lg flex flex-col border-l border-gray-200">
+    <div className="w-80 h-screen sticky top-0 bg-[#0a0a0a] flex flex-col border-l border-zinc-700">
       {/* Header */}
-      <div className="h-16 flex items-center justify-between px-4 border-b bg-gray-50">
+      <div className="h-14 flex items-center justify-between px-4 border-b border-zinc-700">
         <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-blue-600" />
-          <h2 className="font-semibold text-gray-900">AI Assistant</h2>
+          <MessageSquare className="w-4 h-4 text-zinc-400" />
+          <h2 className="font-medium text-zinc-300 text-sm">ai assistant</h2>
         </div>
         <button
           onClick={onToggle}
-          className="p-1 hover:bg-gray-200 rounded-md transition-colors"
+          className="p-1 hover:bg-zinc-900 transition-colors"
           title="Close chat"
         >
-          <X className="w-5 h-5 text-gray-500" />
+          <X className="w-3.5 h-3.5 text-zinc-500" />
         </button>
       </div>
 
       {/* Project context indicator */}
       {currentProject ? (
-        <div className="px-4 py-2 bg-blue-50 border-b text-sm">
-          <span className="text-gray-600">Working on: </span>
-          <span className="font-medium text-blue-700">{currentProject.name}</span>
+        <div className="px-4 py-2 bg-zinc-900 border-b border-zinc-700 text-xs">
+          <span className="text-zinc-500">context: </span>
+          <span className="font-medium text-zinc-300">{currentProject.name}</span>
         </div>
       ) : (
-        <div className="px-4 py-2 bg-yellow-50 border-b text-sm text-yellow-700">
-          Select a project to start
+        <div className="px-4 py-2 bg-zinc-900 border-b border-zinc-700 text-xs text-zinc-500">
+          select project first
         </div>
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 && (
-          <div className="text-center text-gray-500 mt-8">
-            <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-            <p className="text-sm">
-              Describe your activities, tasks, or operations and I'll help you organize them.
+          <div className="text-center text-zinc-500 mt-8 border border-zinc-700 p-4">
+            <MessageSquare className="w-8 h-8 mx-auto mb-3 text-zinc-600" />
+            <p className="text-xs">
+              describe activities, tasks, and operations
             </p>
-            <div className="mt-4 text-xs text-gray-400">
-              <p className="mb-2">Try saying:</p>
-              <p className="italic">"I'm working on user authentication"</p>
-              <p className="italic">"Add a task to implement the login form"</p>
-            </div>
           </div>
         )}
 
@@ -237,45 +232,45 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+              className={`max-w-[85%] px-3 py-2 text-xs ${
                 message.role === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-900'
+                  ? 'bg-zinc-900 border border-zinc-600 text-zinc-200'
+                  : 'bg-[#0a0a0a] border border-zinc-700 text-zinc-300'
               }`}
             >
               <div className="whitespace-pre-wrap">{message.content}</div>
 
               {/* Show tool calls */}
               {message.toolCalls && message.toolCalls.length > 0 && (
-                <div className="mt-2 pt-2 border-t border-gray-200 text-xs text-gray-500">
+                <div className="mt-2 pt-2 border-t border-zinc-600 text-xs text-zinc-400">
                   {message.toolCalls.map((tool, idx) => (
-                    <div key={idx} className="flex items-center gap-1">
+                    <div key={idx} className="flex items-center gap-1 font-mono">
                       {tool.status === 'pending' ? (
-                        <Loader2 className="w-3 h-3 animate-spin text-blue-500" />
+                        <Loader2 className="w-3 h-3 animate-spin text-zinc-300" />
                       ) : (
-                        <span className="text-green-600">✓</span>
+                        <span className="text-zinc-300">[OK]</span>
                       )}
-                      <span className={tool.status === 'pending' ? 'text-blue-600' : ''}>
+                      <span className={tool.status === 'pending' ? 'text-zinc-300' : ''}>
                         {(() => {
                           const labels: Record<string, [string, string]> = {
-                            'add-activity': ['Adding activity...', 'Added activity'],
-                            'add-task': ['Adding task...', 'Added task'],
-                            'add-operation': ['Adding operation...', 'Added operation'],
-                            'edit-activity': ['Updating activity...', 'Updated activity'],
-                            'edit-task': ['Updating task...', 'Updated task'],
-                            'edit-operation': ['Updating operation...', 'Updated operation'],
-                            'delete-activity': ['Deleting activity...', 'Deleted activity'],
-                            'delete-task': ['Deleting task...', 'Deleted task'],
-                            'delete-operation': ['Deleting operation...', 'Deleted operation'],
-                            'bulk-add': ['Adding items...', 'Added multiple items'],
-                            'get-project-context': ['Reviewing project...', 'Reviewed project'],
+                            'add-activity': ['EXEC: add-activity', 'DONE: add-activity'],
+                            'add-task': ['EXEC: add-task', 'DONE: add-task'],
+                            'add-operation': ['EXEC: add-operation', 'DONE: add-operation'],
+                            'edit-activity': ['EXEC: edit-activity', 'DONE: edit-activity'],
+                            'edit-task': ['EXEC: edit-task', 'DONE: edit-task'],
+                            'edit-operation': ['EXEC: edit-operation', 'DONE: edit-operation'],
+                            'delete-activity': ['EXEC: delete-activity', 'DONE: delete-activity'],
+                            'delete-task': ['EXEC: delete-task', 'DONE: delete-task'],
+                            'delete-operation': ['EXEC: delete-operation', 'DONE: delete-operation'],
+                            'bulk-add': ['EXEC: bulk-add', 'DONE: bulk-add'],
+                            'get-project-context': ['EXEC: get-context', 'DONE: get-context'],
                           };
                           const label = labels[tool.toolName];
                           if (label) {
                             return tool.status === 'pending' ? label[0] : label[1];
                           }
                           // Fallback: show raw tool name
-                          return tool.status === 'pending' ? `Calling ${tool.toolName}...` : `Called ${tool.toolName}`;
+                          return tool.status === 'pending' ? `EXEC: ${tool.toolName}` : `DONE: ${tool.toolName}`;
                         })()}
                       </span>
                     </div>
@@ -288,16 +283,16 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-              <span className="text-sm text-gray-500">Thinking...</span>
+            <div className="bg-[#0a0a0a] border border-zinc-600 px-3 py-2 flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-zinc-300" />
+              <span className="text-xs text-zinc-300 font-mono">processing...</span>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2">
-            Error: {error}
+          <div className="bg-red-500/10 border border-red-500 text-red-400 text-xs px-3 py-2">
+            error: {error}
           </div>
         )}
 
@@ -305,27 +300,27 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onToggle }) =>
       </div>
 
       {/* Input */}
-      <form onSubmit={onSubmit} className="p-4 border-t bg-gray-50">
+      <form onSubmit={onSubmit} className="p-4 border-t border-zinc-700">
         <div className="flex gap-2">
           <textarea
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={currentProject ? 'Describe your work...' : 'Select a project first'}
+            placeholder={currentProject ? 'enter command...' : 'select project first'}
             disabled={!currentProject || isLoading}
             rows={1}
-            className="flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="flex-1 resize-none border border-zinc-700 bg-[#0a0a0a] text-zinc-200 placeholder-zinc-600 px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button
             type="submit"
             disabled={!currentProject || !input.trim() || isLoading}
-            className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="bg-zinc-900 border border-zinc-700 text-zinc-300 p-2 hover:bg-zinc-800 hover:text-zinc-200 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-xs text-gray-400 mt-2">Press Enter to send, Shift+Enter for new line</p>
+        <p className="text-xs text-zinc-500 mt-2 font-mono">enter=send | shift+enter=newline</p>
       </form>
     </div>
   );

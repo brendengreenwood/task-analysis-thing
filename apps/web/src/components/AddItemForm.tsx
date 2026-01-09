@@ -65,10 +65,10 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
 
   if (level === 'project') {
     return (
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 p-4">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-3 p-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-            Project Name
+          <label htmlFor="name" className="block text-xs text-zinc-500 mb-1.5">
+            name
           </label>
           <input
             ref={inputRef}
@@ -76,37 +76,37 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Enter project name"
+            className="w-full px-2.5 py-1.5 border border-zinc-700 bg-[#0a0a0a] text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 text-sm"
+            placeholder="project name"
             autoFocus
           />
         </div>
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-            Description
+          <label htmlFor="description" className="block text-xs text-zinc-500 mb-1.5">
+            description
           </label>
           <textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none"
-            placeholder="Enter project description"
+            className="w-full px-2.5 py-1.5 border border-zinc-700 bg-[#0a0a0a] text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 text-sm resize-none"
+            placeholder="description"
           />
         </div>
-        <div className="flex justify-end space-x-3 pt-2">
+        <div className="flex justify-end space-x-2 pt-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="px-3 py-1.5 text-xs text-zinc-500 hover:text-zinc-400 focus:outline-none transition-colors"
           >
-            Cancel
+            cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="px-3 py-1.5 text-xs text-zinc-300 border border-zinc-700 hover:bg-zinc-900 focus:outline-none transition-colors"
           >
-            Create Project
+            create
           </button>
         </div>
       </form>
@@ -114,32 +114,32 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
   }
 
   return (
-    <form 
+    <form
       ref={formRef}
-      onSubmit={handleSubmit} 
-      className="flex items-center gap-2 mb-4 group"
+      onSubmit={handleSubmit}
+      className="flex items-center gap-2 mb-3 group"
     >
       <input
         ref={inputRef}
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder={`Add new ${level}...`}
-        className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        placeholder={`new ${level}`}
+        className="flex-1 px-2.5 py-1.5 border border-zinc-700 bg-[#0a0a0a] text-zinc-200 placeholder-zinc-600 text-xs focus:outline-none focus:border-zinc-600"
       />
       <button
         type="submit"
-        className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="p-1.5 text-zinc-400 border border-zinc-700 hover:bg-zinc-900 focus:outline-none transition-colors"
       >
-        <Plus className="w-5 h-5" />
+        <Plus className="w-3.5 h-3.5" />
       </button>
       <button
         type="button"
         onClick={onClose}
-        className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+        className="p-1.5 text-zinc-600 hover:text-red-500 focus:outline-none transition-colors"
         title="Cancel (Esc)"
       >
-        <X className="w-5 h-5" />
+        <X className="w-3.5 h-3.5" />
       </button>
     </form>
   );

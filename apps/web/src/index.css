@@ -1,6 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Terminal font */
+* {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
+  letter-spacing: 0.02em;
+}
+
+body {
+  background: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 50%, #000000 100%);
+  background-attachment: fixed;
+}
 
 /* Always show scrollbar to prevent layout shifts */
 html {
@@ -12,7 +25,7 @@ html {
 }
 
 .dragging > div {
-  @apply shadow-xl ring-2 ring-blue-400 !important;
+  @apply shadow-xl ring-2 ring-green-400 !important;
 }
 
 .drop-indicator {

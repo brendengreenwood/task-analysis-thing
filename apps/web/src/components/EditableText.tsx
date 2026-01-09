@@ -67,7 +67,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         onChange={(e) => setText(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className={`px-2 py-1 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 ${className}`}
+        className={`px-2 py-1 border border-zinc-600 bg-[#0a0a0a] text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 ${className}`}
         placeholder={placeholder}
       />
     );
@@ -76,7 +76,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
   return (
     <span
       onClick={handleClick}
-      className={`cursor-pointer ${className} ${!value && 'text-gray-400'}`}
+      className={`cursor-pointer ${className} ${!value && 'text-zinc-600'}`}
       title="Click to edit"
     >
       {value || placeholder}

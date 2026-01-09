@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown } from 'lucide-react';
 import { Activity } from '../components/Activity';
 import { AddItemForm } from '../components/AddItemForm';
 import { useStore } from '../store/useStore';
@@ -22,7 +23,19 @@ import {
 export const ProjectPage: React.FC = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { projects, setCurrentProject, reorderActivities, reorderTasks, reorderOperations, addActivity, editProject } = useStore();
+  const {
+    projects,
+    setCurrentProject,
+    reorderActivities,
+    reorderTasks,
+    reorderOperations,
+    addActivity,
+    editProject,
+    expandAllActivities,
+    collapseAllActivities,
+    expandAllTasks,
+    collapseAllTasks
+  } = useStore();
   const currentProject = projects.find(p => p.id === projectId);
   
   useEffect(() => {
@@ -143,27 +156,48 @@ export const ProjectPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
+    <div className="space-y-5">
+      <div className="space-y-1.5 border-b border-zinc-700 pb-3">
         <EditableText
           value={currentProject.name}
           onSave={handleEditProject}
-          className="text-2xl font-bold text-gray-900 hover:bg-gray-50 px-2 py-1 -ml-2 rounded"
+          className="text-base font-medium text-zinc-200 hover:bg-zinc-900 px-2 py-1 -ml-2"
         />
         <EditableText
           value={currentProject.description}
           onSave={handleEditDescription}
-          className="text-gray-600 italic hover:bg-gray-50 px-2 py-1 -ml-2 rounded block"
-          placeholder="Add a project description..."
+          className="text-zinc-500 text-sm hover:bg-zinc-900 px-2 py-1 -ml-2 block"
+          placeholder="description"
         />
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <AddItemForm 
-          level="activity" 
-          onSubmit={handleAddActivity}
-          onClose={() => {}} 
-        />
+      <div className="bg-[#0a0a0a] border border-zinc-700 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <AddItemForm
+            level="activity"
+            onSubmit={handleAddActivity}
+            onClose={() => {}}
+          />
+          {currentProject.activities.length > 0 && (
+            <div className="flex items-center gap-2 text-xs">
+              <button
+                onClick={expandAllActivities}
+                className="text-zinc-500 hover:text-zinc-400 transition-colors"
+                title="Expand all activities"
+              >
+                expand all
+              </button>
+              <span className="text-zinc-600">/</span>
+              <button
+                onClick={collapseAllActivities}
+                className="text-zinc-500 hover:text-zinc-400 transition-colors"
+                title="Collapse all activities"
+              >
+                collapse all
+              </button>
+            </div>
+          )}
+        </div>
         
         <DndContext
           sensors={sensors}
@@ -191,8 +225,8 @@ export const ProjectPage: React.FC = () => {
         </DndContext>
         
         {currentProject.activities.length === 0 && (
-          <div className="text-center text-gray-500 py-8">
-            Press Alt+A to add your first activity
+          <div className="text-center text-zinc-600 py-8 text-sm">
+            no activities — press alt+a to add
           </div>
         )}
       </div>

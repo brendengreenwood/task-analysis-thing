@@ -17,25 +17,25 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen flex">
       {/* Sidebar */}
-      <div 
-        className={`bg-white shadow-lg transition-all duration-300 ease-in-out relative flex flex-col ${
+      <div
+        className={`bg-[#0a0a0a] border-r border-zinc-700 transition-all duration-300 ease-in-out relative flex flex-col ${
           isSidebarCollapsed ? 'w-16' : 'w-64'
         }`}
       >
-        <div className="h-16 flex items-center px-6 border-b">
-          <h1 className={`text-xl font-bold text-gray-900 transition-opacity duration-200 ${
+        <div className="h-14 flex items-center px-4 border-b border-zinc-700">
+          <h1 className={`text-base font-medium text-zinc-300 transition-opacity duration-200 ${
             isSidebarCollapsed ? 'opacity-0' : 'opacity-100'
           }`}>
-            Task Analyzer
+            task-analyzer v1.0
           </h1>
         </div>
-        
-        <nav className="p-4 space-y-2 flex-1">
+
+        <nav className="p-3 space-y-1 flex-1">
           <button
             onClick={() => setShowNewProjectForm(true)}
-            className={`w-full flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors ${
+            className={`w-full flex items-center px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition-colors ${
               isSidebarCollapsed ? 'justify-center' : ''
             }`}
             title="New Project"
@@ -44,14 +44,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <span className={`ml-2 transition-opacity duration-200 ${
               isSidebarCollapsed ? 'hidden' : 'block'
             }`}>
-              New Project
+              new project
             </span>
           </button>
 
           <Link
             to="/"
-            className={`flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors ${
-              location.pathname === '/' ? 'text-blue-600 bg-blue-50' : 'text-gray-900'
+            className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+              location.pathname === '/' ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
             } ${isSidebarCollapsed ? 'justify-center' : ''}`}
             title="Projects"
           >
@@ -59,13 +59,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <span className={`ml-2 transition-opacity duration-200 ${
               isSidebarCollapsed ? 'hidden' : 'block'
             }`}>
-              Projects
+              projects
             </span>
           </Link>
 
           <button
             onClick={() => setIsHelpModalOpen(true)}
-            className={`w-full flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 transition-colors ${
+            className={`w-full flex items-center px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-900 hover:text-zinc-400 transition-colors ${
               isSidebarCollapsed ? 'justify-center' : ''
             }`}
             title="About Analysis"
@@ -74,7 +74,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <span className={`ml-2 transition-opacity duration-200 ${
               isSidebarCollapsed ? 'hidden' : 'block'
             }`}>
-              About Analysis
+              about
             </span>
           </button>
         </nav>
@@ -82,12 +82,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Collapse toggle button */}
         <button
           onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          className="absolute -right-3 top-20 bg-white rounded-full p-1 shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors"
+          className="absolute -right-3 top-16 bg-[#0a0a0a] border border-zinc-700 p-0.5 hover:bg-zinc-900 text-zinc-500 focus:outline-none transition-colors"
         >
           {isSidebarCollapsed ? (
-            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <ChevronRight className="w-3 h-3" />
           ) : (
-            <ChevronLeft className="w-4 h-4 text-gray-600" />
+            <ChevronLeft className="w-3 h-3" />
           )}
         </button>
       </div>
@@ -105,10 +105,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} />
       
       {showNewProjectForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
-            <div className="border-b px-6 py-4">
-              <h2 className="text-lg font-medium text-gray-900">Create New Project</h2>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-[#0a0a0a] border border-zinc-700 max-w-md w-full mx-4">
+            <div className="border-b border-zinc-700 px-5 py-2.5">
+              <h2 className="text-sm font-medium text-zinc-300">new project</h2>
             </div>
             <AddItemForm
               level="project"
