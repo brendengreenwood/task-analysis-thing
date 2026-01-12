@@ -1,12 +1,40 @@
-import React from 'react';
-import { Calendar, Clock, FileText, Link as LinkIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, Clock, FileText, Link as LinkIcon, Plus } from 'lucide-react';
 
 interface PersonaResearchProps {
   persona: any;
 }
 
 export const PersonaResearch: React.FC<PersonaResearchProps> = ({ persona }) => {
+  const navigate = useNavigate();
+  const [creating, setCreating] = useState(false);
   const sessions = persona.sessions || [];
+
+  const handleCreateSession = async () => {
+    setCreating(true);
+    try {
+      const response = await fetch(`/api/projects/${persona.projectId}/sessions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'interview',
+          date: new Date(),
+          personaId: persona.id,
+          participantName: persona.name,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create session');
+
+      const newSession = await response.json();
+      navigate(`/projects/${persona.projectId}/sessions/${newSession.id}`);
+    } catch (error) {
+      console.error('Error creating session:', error);
+    } finally {
+      setCreating(false);
+    }
+  };
 
   const getSessionTypeColor = (type: string) => {
     switch (type) {
@@ -43,9 +71,21 @@ export const PersonaResearch: React.FC<PersonaResearchProps> = ({ persona }) => 
 
   if (sessions.length === 0) {
     return (
-      <div className="text-center py-12">
-        <Calendar className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-        <p className="text-sm text-zinc-500">no research sessions with this persona</p>
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <button
+            onClick={handleCreateSession}
+            disabled={creating}
+            className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-xs text-white transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {creating ? 'creating...' : 'new session'}
+          </button>
+        </div>
+        <div className="text-center py-12">
+          <Calendar className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
+          <p className="text-sm text-zinc-500">no research sessions with this persona</p>
+        </div>
       </div>
     );
   }
@@ -68,6 +108,18 @@ export const PersonaResearch: React.FC<PersonaResearchProps> = ({ persona }) => 
 
   return (
     <div className="space-y-4">
+      {/* New Session Button */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleCreateSession}
+          disabled={creating}
+          className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-xs text-white transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          {creating ? 'creating...' : 'new session'}
+        </button>
+      </div>
+
       {sortedSessions.map((session: any) => (
         <div key={session.id} className="bg-[#0a0a0a] border border-zinc-700 p-4">
           {/* Session Header */}

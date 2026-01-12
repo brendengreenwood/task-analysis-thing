@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft, Calendar, Clock, User, Upload, FileText, MessageSquare, Quote, Lightbulb, Save } from 'lucide-react';
+import { InsightsSidebar } from '../components/sessions/InsightsSidebar';
 
 type ContentMode = 'notes' | 'transcript';
 type InsightType = 'observation' | 'pattern' | 'quote' | 'pain_point';
@@ -30,6 +31,8 @@ export const SessionDetail: React.FC = () => {
   const [transcript, setTranscript] = useState('');
   const [selectedText, setSelectedText] = useState('');
   const [saving, setSaving] = useState(false);
+  const [prefillContent, setPrefillContent] = useState('');
+  const [prefillType, setPrefillType] = useState<InsightType | undefined>(undefined);
 
   const contentRef = useRef<HTMLTextAreaElement>(null);
 
@@ -88,6 +91,27 @@ export const SessionDetail: React.FC = () => {
     if (text) {
       setSelectedText(text);
     }
+  };
+
+  const handleQuickQuote = () => {
+    if (!selectedText) return;
+    setPrefillContent(selectedText);
+    setPrefillType('quote');
+    setSelectedText(''); // Clear selection after use
+  };
+
+  const handleQuickInsight = () => {
+    if (!selectedText) return;
+    setPrefillContent(selectedText);
+    setPrefillType('observation');
+    setSelectedText(''); // Clear selection after use
+  };
+
+  const handleInsightCreated = () => {
+    // Refresh session data to get updated insights
+    fetchSession();
+    setPrefillContent('');
+    setPrefillType(undefined);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -272,11 +296,17 @@ export const SessionDetail: React.FC = () => {
                 "{selectedText.substring(0, 50)}..."
               </span>
               <div className="flex gap-2 ml-auto">
-                <button className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/30 transition-colors">
+                <button
+                  onClick={handleQuickQuote}
+                  className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/30 transition-colors"
+                >
                   <Quote className="w-3 h-3" />
                   quote
                 </button>
-                <button className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-600/30 transition-colors">
+                <button
+                  onClick={handleQuickInsight}
+                  className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-600/30 transition-colors"
+                >
                   <Lightbulb className="w-3 h-3" />
                   insight
                 </button>
@@ -285,10 +315,16 @@ export const SessionDetail: React.FC = () => {
           )}
         </div>
 
-        {/* Right: Insights sidebar - PLACEHOLDER */}
-        <div className="bg-[#0a0a0a] border border-zinc-700 p-4 overflow-y-auto">
-          <h3 className="text-sm font-medium text-zinc-300 mb-3">insights ({sessionData.insights.length})</h3>
-          <p className="text-xs text-zinc-600">insights sidebar - TODO</p>
+        {/* Right: Insights sidebar */}
+        <div className="bg-[#0a0a0a] border border-zinc-700 p-4 overflow-hidden">
+          <InsightsSidebar
+            sessionId={sessionData.id}
+            projectId={sessionData.projectId}
+            insights={sessionData.insights || []}
+            onInsightCreated={handleInsightCreated}
+            prefillContent={prefillContent}
+            prefillType={prefillType}
+          />
         </div>
       </div>
     </div>
