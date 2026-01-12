@@ -1,9 +1,41 @@
 import { Hono } from 'hono';
 import { db } from '../db/index';
-import { sessions } from '../db/schema';
+import { sessions, insights } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
 const app = new Hono();
+
+// GET /api/sessions/:id - Get session with insights
+app.get('/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+
+    const session = await db
+      .select()
+      .from(sessions)
+      .where(eq(sessions.id, id))
+      .get();
+
+    if (!session) {
+      return c.json({ error: 'Session not found' }, 404);
+    }
+
+    // Get insights linked to this session
+    const sessionInsights = await db
+      .select()
+      .from(insights)
+      .where(eq(insights.sessionId, id))
+      .all();
+
+    return c.json({
+      ...session,
+      insights: sessionInsights,
+    });
+  } catch (error) {
+    console.error('Error fetching session:', error);
+    return c.json({ error: 'Failed to fetch session' }, 500);
+  }
+});
 
 // PUT /api/sessions/:id - Update session
 app.put('/:id', async (c) => {
@@ -28,6 +60,7 @@ app.put('/:id', async (c) => {
       personaId: body.personaId ?? existing.personaId,
       duration: body.duration ?? existing.duration,
       notes: body.notes ?? existing.notes,
+      transcript: body.transcript ?? existing.transcript,
       recordingUrl: body.recordingUrl ?? existing.recordingUrl,
     };
 

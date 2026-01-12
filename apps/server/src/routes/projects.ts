@@ -112,6 +112,7 @@ app.post('/:projectId/sessions', async (c) => {
       personaId: body.personaId || null,
       duration: body.duration || null,
       notes: body.notes || null,
+      transcript: body.transcript || null,
       recordingUrl: body.recordingUrl || null,
     };
 

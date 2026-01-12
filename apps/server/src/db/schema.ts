@@ -41,6 +41,7 @@ export const sessions = sqliteTable('sessions', {
   personaId: text('persona_id').references(() => personas.id),
   duration: integer('duration'), // minutes
   notes: text('notes'),
+  transcript: text('transcript'), // imported or pasted transcript with timestamps
   recordingUrl: text('recording_url'),
 });
 

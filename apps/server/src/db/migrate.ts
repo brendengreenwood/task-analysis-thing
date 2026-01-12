@@ -14,6 +14,7 @@ const client = createClient({
 const migrations = [
   '0000_many_beast.sql',
   '0001_low_bloodstorm.sql',
+  '0002_sturdy_charles_xavier.sql',
 ];
 
 for (const migrationFile of migrations) {
