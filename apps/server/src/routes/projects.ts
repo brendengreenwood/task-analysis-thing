@@ -39,6 +39,8 @@ app.post('/:projectId/personas', async (c) => {
       return c.json({ error: 'Project not found' }, 404);
     }
 
+    const now = new Date();
+
     const newPersona = {
       id: `persona-${Date.now()}`,
       projectId,
@@ -49,6 +51,14 @@ app.post('/:projectId/personas', async (c) => {
       frustrations: body.frustrations || [],
       tools: body.tools || [],
       quote: body.quote || null,
+      avatarUrl: body.avatarUrl || null,
+      skills: body.skills || [],
+      environment: body.environment || null,
+      experienceLevel: body.experienceLevel || null,
+      usageFrequency: body.usageFrequency || null,
+      influence: body.influence || null,
+      createdAt: now,
+      updatedAt: now,
     };
 
     await db.insert(personas).values(newPersona);

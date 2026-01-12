@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { User, Trash, Edit, Target, Frown, Wrench, Quote } from 'lucide-react';
 import { Persona } from '../../store/personaStore';
 
@@ -9,15 +10,20 @@ interface PersonaCardProps {
 }
 
 export const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onEdit, onDelete }) => {
+  const { projectId } = useParams();
+
   return (
-    <div className="bg-[#0a0a0a] border border-zinc-700 overflow-hidden hover:border-zinc-600 transition-colors">
+    <div className="bg-[#0a0a0a] border border-zinc-700 overflow-hidden hover:border-zinc-600 transition-colors group">
       {/* Header with colored stripe */}
       <div className="flex">
         <div className="w-1 bg-gradient-to-b from-blue-500 to-blue-700 flex-shrink-0" />
         <div className="flex-grow">
           <div className="p-4 border-b border-zinc-800">
             <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-3">
+              <Link
+                to={`/projects/${projectId}/personas/${persona.id}`}
+                className="flex items-start space-x-3 flex-1 group-hover:opacity-80 transition-opacity"
+              >
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
                   <User className="w-5 h-5 text-white" />
                 </div>
@@ -27,17 +33,23 @@ export const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onEdit, onDel
                     <p className="text-xs text-zinc-500 mt-0.5">{persona.role}</p>
                   )}
                 </div>
-              </div>
-              <div className="flex space-x-1">
+              </Link>
+              <div className="flex space-x-1 ml-2">
                 <button
-                  onClick={() => onEdit(persona)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(persona);
+                  }}
                   className="p-1.5 hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors"
                   title="Edit persona"
                 >
                   <Edit className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  onClick={() => onDelete(persona.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(persona.id);
+                  }}
                   className="p-1.5 hover:bg-zinc-800 text-zinc-500 hover:text-red-400 transition-colors"
                   title="Delete persona"
                 >
@@ -47,7 +59,10 @@ export const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onEdit, onDel
             </div>
           </div>
 
-          <div className="p-4 space-y-3">
+          <Link
+            to={`/projects/${projectId}/personas/${persona.id}`}
+            className="block p-4 space-y-3 hover:bg-zinc-900/30 transition-colors"
+          >
             {/* Description */}
             {persona.description && (
               <p className="text-xs text-zinc-400 leading-relaxed">{persona.description}</p>
@@ -116,7 +131,7 @@ export const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onEdit, onDel
                 </div>
               </div>
             )}
-          </div>
+          </Link>
         </div>
       </div>
     </div>
