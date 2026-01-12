@@ -22,7 +22,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-export const ProjectPage: React.FC = () => {
+export const TaskAnalysisPage: React.FC = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const {

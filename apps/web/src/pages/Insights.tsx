@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Lightbulb } from 'lucide-react';
 import { useInsightStore, Insight } from '../store/insightStore';
 import { useSessionStore } from '../store/sessionStore';
@@ -8,22 +9,31 @@ import { InsightList } from '../components/insights/InsightList';
 import { InsightEditor } from '../components/insights/InsightEditor';
 
 export const Insights: React.FC = () => {
-  const currentProjectId = useStore((state) => state.currentProjectId);
-  const { projects } = useStore();
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const { projects, setCurrentProject } = useStore();
   const { insights, loading, fetchInsights, createInsight, updateInsight, deleteInsight } = useInsightStore();
   const { sessions, fetchSessions } = useSessionStore();
   const { personas, fetchPersonas } = usePersonaStore();
+
+  useEffect(() => {
+    if (projectId) {
+      setCurrentProject(projectId);
+    } else {
+      navigate('/');
+    }
+  }, [projectId, setCurrentProject, navigate]);
 
   const [showEditor, setShowEditor] = useState(false);
   const [editingInsight, setEditingInsight] = useState<Insight | null>(null);
 
   useEffect(() => {
-    if (currentProjectId) {
-      fetchInsights(currentProjectId);
-      fetchSessions(currentProjectId);
-      fetchPersonas(currentProjectId);
+    if (projectId) {
+      fetchInsights(projectId);
+      fetchSessions(projectId);
+      fetchPersonas(projectId);
     }
-  }, [currentProjectId, fetchInsights, fetchSessions, fetchPersonas]);
+  }, [projectId, fetchInsights, fetchSessions, fetchPersonas]);
 
   const handleCreate = () => {
     setEditingInsight(null);
@@ -36,13 +46,13 @@ export const Insights: React.FC = () => {
   };
 
   const handleSave = async (data: Partial<Omit<Insight, 'id' | 'projectId' | 'createdAt'>>) => {
-    if (!currentProjectId) return;
+    if (!projectId) return;
 
     try {
       if (editingInsight) {
         await updateInsight(editingInsight.id, data);
       } else {
-        await createInsight(currentProjectId, data as any);
+        await createInsight(projectId, data as any);
       }
       setShowEditor(false);
       setEditingInsight(null);
@@ -61,7 +71,7 @@ export const Insights: React.FC = () => {
     }
   };
 
-  if (!currentProjectId) {
+  if (!projectId) {
     return (
       <div className="text-center py-12">
         <Lightbulb className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
@@ -70,7 +80,7 @@ export const Insights: React.FC = () => {
     );
   }
 
-  const currentProject = projects.find((p) => p.id === currentProjectId);
+  const currentProject = projects.find((p) => p.id === projectId);
 
   return (
     <div>
@@ -106,10 +116,10 @@ export const Insights: React.FC = () => {
       )}
 
       {/* Editor modal */}
-      {showEditor && currentProjectId && (
+      {showEditor && projectId && (
         <InsightEditor
           insight={editingInsight}
-          projectId={currentProjectId}
+          projectId={projectId}
           onSave={handleSave}
           onClose={() => {
             setShowEditor(false);

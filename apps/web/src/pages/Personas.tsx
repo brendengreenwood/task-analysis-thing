@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Users } from 'lucide-react';
 import { usePersonaStore, Persona } from '../store/personaStore';
 import { useStore } from '../store/useStore';
@@ -6,17 +7,27 @@ import { PersonaGrid } from '../components/personas/PersonaGrid';
 import { PersonaEditor } from '../components/personas/PersonaEditor';
 
 export const Personas: React.FC = () => {
-  const currentProjectId = useStore((state) => state.currentProjectId);
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const { setCurrentProject } = useStore();
   const { personas, loading, fetchPersonas, createPersona, updatePersona, deletePersona } = usePersonaStore();
+
+  useEffect(() => {
+    if (projectId) {
+      setCurrentProject(projectId);
+    } else {
+      navigate('/');
+    }
+  }, [projectId, setCurrentProject, navigate]);
 
   const [showEditor, setShowEditor] = useState(false);
   const [editingPersona, setEditingPersona] = useState<Persona | null>(null);
 
   useEffect(() => {
-    if (currentProjectId) {
-      fetchPersonas(currentProjectId);
+    if (projectId) {
+      fetchPersonas(projectId);
     }
-  }, [currentProjectId, fetchPersonas]);
+  }, [projectId, fetchPersonas]);
 
   const handleCreate = () => {
     setEditingPersona(null);
@@ -29,13 +40,13 @@ export const Personas: React.FC = () => {
   };
 
   const handleSave = async (data: Partial<Persona>) => {
-    if (!currentProjectId) return;
+    if (!projectId) return;
 
     try {
       if (editingPersona) {
         await updatePersona(editingPersona.id, data);
       } else {
-        await createPersona(currentProjectId, data as Omit<Persona, 'id' | 'projectId'>);
+        await createPersona(projectId, data as Omit<Persona, 'id' | 'projectId'>);
       }
       setShowEditor(false);
       setEditingPersona(null);
@@ -54,7 +65,7 @@ export const Personas: React.FC = () => {
     }
   };
 
-  if (!currentProjectId) {
+  if (!projectId) {
     return (
       <div className="text-center py-12">
         <Users className="w-12 h-12 text-zinc-700 mx-auto mb-3" />

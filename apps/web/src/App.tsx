@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { ProjectsPage } from './pages/ProjectsPage';
-import { ProjectPage } from './pages/ProjectPage';
+import { ProjectDashboard } from './pages/ProjectDashboard';
+import { TaskAnalysisPage } from './pages/TaskAnalysisPage';
 import { Personas } from './pages/Personas';
 import { Sessions } from './pages/Sessions';
 import { Insights } from './pages/Insights';
@@ -19,10 +20,11 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<ProjectsPage />} />
-        <Route path="/projects/:projectId" element={<ProjectPage />} />
-        <Route path="/personas" element={<Personas />} />
-        <Route path="/sessions" element={<Sessions />} />
-        <Route path="/insights" element={<Insights />} />
+        <Route path="/projects/:projectId" element={<ProjectDashboard />} />
+        <Route path="/projects/:projectId/task-analysis" element={<TaskAnalysisPage />} />
+        <Route path="/projects/:projectId/personas" element={<Personas />} />
+        <Route path="/projects/:projectId/sessions" element={<Sessions />} />
+        <Route path="/projects/:projectId/insights" element={<Insights />} />
       </Routes>
     </Layout>
   );
