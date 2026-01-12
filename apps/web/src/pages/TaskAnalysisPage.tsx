@@ -7,6 +7,7 @@ import { useStore } from '../store/useStore';
 import { useInsightStore } from '../store/insightStore';
 import { EditableText } from '../components/EditableText';
 import { ExportButton } from '../components/export/ExportButton';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import {
   DndContext,
   DragEndEvent,
@@ -166,6 +167,14 @@ export const TaskAnalysisPage: React.FC = () => {
 
   return (
     <div className="space-y-5">
+      <Breadcrumbs
+        items={[
+          { label: 'projects', href: '/' },
+          { label: currentProject.name, href: `/projects/${currentProject.id}` },
+          { label: 'task analysis' },
+        ]}
+      />
+
       <div className="space-y-1.5 border-b border-zinc-700 pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">

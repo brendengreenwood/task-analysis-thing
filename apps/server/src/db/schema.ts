@@ -21,6 +21,14 @@ export const personas = sqliteTable('personas', {
   frustrations: text('frustrations', { mode: 'json' }).$type<string[]>().default([]),
   tools: text('tools', { mode: 'json' }).$type<string[]>().default([]),
   quote: text('quote'),
+  avatarUrl: text('avatar_url'),
+  skills: text('skills', { mode: 'json' }).$type<string[]>().default([]),
+  environment: text('environment'),
+  experienceLevel: text('experience_level', { enum: ['beginner', 'intermediate', 'advanced', 'expert'] }),
+  usageFrequency: text('usage_frequency', { enum: ['daily', 'weekly', 'monthly', 'occasionally'] }),
+  influence: text('influence', { enum: ['low', 'medium', 'high'] }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
 
 // Research Sessions
@@ -33,6 +41,7 @@ export const sessions = sqliteTable('sessions', {
   personaId: text('persona_id').references(() => personas.id),
   duration: integer('duration'), // minutes
   notes: text('notes'),
+  transcript: text('transcript'), // imported or pasted transcript with timestamps
   recordingUrl: text('recording_url'),
 });
 

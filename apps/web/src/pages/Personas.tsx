@@ -5,12 +5,15 @@ import { usePersonaStore, Persona } from '../store/personaStore';
 import { useStore } from '../store/useStore';
 import { PersonaGrid } from '../components/personas/PersonaGrid';
 import { PersonaEditor } from '../components/personas/PersonaEditor';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export const Personas: React.FC = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { setCurrentProject } = useStore();
+  const { projects, setCurrentProject } = useStore();
   const { personas, loading, fetchPersonas, createPersona, updatePersona, deletePersona } = usePersonaStore();
+
+  const currentProject = projects.find((p) => p.id === projectId);
 
   useEffect(() => {
     if (projectId) {
@@ -76,6 +79,16 @@ export const Personas: React.FC = () => {
 
   return (
     <div>
+      {currentProject && (
+        <Breadcrumbs
+          items={[
+            { label: 'projects', href: '/' },
+            { label: currentProject.name, href: `/projects/${currentProject.id}` },
+            { label: 'personas' },
+          ]}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

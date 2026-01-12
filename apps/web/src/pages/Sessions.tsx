@@ -6,13 +6,16 @@ import { usePersonaStore } from '../store/personaStore';
 import { useStore } from '../store/useStore';
 import { SessionList } from '../components/sessions/SessionList';
 import { SessionEditor } from '../components/sessions/SessionEditor';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export const Sessions: React.FC = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { setCurrentProject } = useStore();
+  const { projects, setCurrentProject } = useStore();
   const { sessions, loading, fetchSessions, createSession, updateSession, deleteSession } = useSessionStore();
   const { personas, fetchPersonas } = usePersonaStore();
+
+  const currentProject = projects.find((p) => p.id === projectId);
 
   useEffect(() => {
     if (projectId) {
@@ -79,6 +82,16 @@ export const Sessions: React.FC = () => {
 
   return (
     <div>
+      {currentProject && (
+        <Breadcrumbs
+          items={[
+            { label: 'projects', href: '/' },
+            { label: currentProject.name, href: `/projects/${currentProject.id}` },
+            { label: 'sessions' },
+          ]}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
