@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, ChevronRight, Plus, Trash, GripVertical, Target } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Trash, GripVertical, Target, Lightbulb } from 'lucide-react';
 import { Task as TaskType } from '../types';
 import { Operation } from './Operation';
 import { useStore } from '../store/useStore';
+import { Insight, useInsightStore } from '../store/insightStore';
 import { AddItemForm } from './AddItemForm';
+import { InsightEditor } from './insights/InsightEditor';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EditableText } from './EditableText';
@@ -14,12 +16,20 @@ interface TaskProps {
   activityId: string;
   projectId: string;
   index: number;
+  insights: Insight[];
 }
 
-export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }) => {
+export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index, insights }) => {
   const { toggleExpanded, focusedItem, setFocusedItem, deleteItem, editTask, editTaskGoal, addOperation } = useStore();
+  const { createInsight, fetchInsights } = useInsightStore();
   const isFocused = focusedItem?.id === task.id && focusedItem?.level === 'task';
   const [showAddOperation, setShowAddOperation] = useState(false);
+  const [showInsightEditor, setShowInsightEditor] = useState(false);
+
+  // Count insights linked to this task
+  const taskInsightCount = insights.filter(
+    (i) => i.linkedEntityType === 'task' && i.linkedEntityId === task.id
+  ).length;
 
   const {
     attributes,
@@ -59,6 +69,16 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
 
   const handleAddOperation = (name: string) => {
     addOperation(projectId, activityId, task.id, name);
+  };
+
+  const handleCreateInsight = async (data: any) => {
+    try {
+      await createInsight(projectId, data);
+      await fetchInsights(projectId);
+      setShowInsightEditor(false);
+    } catch (error) {
+      console.error('Failed to create insight:', error);
+    }
   };
 
   return (
@@ -116,6 +136,23 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
                       {task.operations.length} {task.operations.length === 1 ? 'op' : 'ops'}
                     </span>
                   )}
+                  {taskInsightCount > 0 && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs">
+                      <Lightbulb className="w-3 h-3" />
+                      {taskInsightCount}
+                    </span>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowInsightEditor(true);
+                    }}
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs hover:bg-yellow-500/20 transition-colors"
+                    title="Add insight for this task"
+                  >
+                    <Plus className="w-3 h-3" />
+                    insight
+                  </button>
                 </div>
               </div>
               <button
@@ -173,6 +210,7 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
                     activityId={activityId}
                     projectId={projectId}
                     index={operationIndex}
+                    insights={insights}
                   />
                 ))}
               </div>
@@ -185,6 +223,14 @@ export const Task: React.FC<TaskProps> = ({ task, activityId, projectId, index }
           )}
         </div>
       </div>
+      {showInsightEditor && (
+        <InsightEditor
+          projectId={projectId}
+          prefilledEntity={{ type: 'task', id: task.id }}
+          onSave={handleCreateInsight}
+          onClose={() => setShowInsightEditor(false)}
+        />
+      )}
     </div>
   );
 };

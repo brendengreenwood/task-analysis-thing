@@ -4,20 +4,26 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc"
+    "build": "mastra build"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.0",
+    "@libsql/client": "^0.17.0",
     "@mastra/ai-sdk": "beta",
     "@mastra/core": "beta",
+    "@mastra/deployer-netlify": "beta",
     "@mastra/hono": "beta",
+    "@mastra/loggers": "beta",
     "ai": "^4.0.0",
     "dotenv": "^16.4.0",
+    "drizzle-orm": "^0.45.1",
     "hono": "^4.11.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "drizzle-kit": "^0.31.8",
+    "mastra": "beta",
     "tsx": "^4.19.3",
     "typescript": "^5.7.0"
   }

@@ -1,7 +1,9 @@
-import React from 'react';
-import { Trash, GripVertical, AlignLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { Trash, GripVertical, AlignLeft, Lightbulb, Plus } from 'lucide-react';
 import { Operation as OperationType } from '../types';
 import { useStore } from '../store/useStore';
+import { Insight, useInsightStore } from '../store/insightStore';
+import { InsightEditor } from './insights/InsightEditor';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EditableText } from './EditableText';
@@ -12,6 +14,7 @@ interface OperationProps {
   activityId: string;
   projectId: string;
   index: number;
+  insights: Insight[];
 }
 
 export const Operation: React.FC<OperationProps> = ({
@@ -19,11 +22,19 @@ export const Operation: React.FC<OperationProps> = ({
   taskId,
   activityId,
   projectId,
-  index
+  index,
+  insights
 }) => {
   const { focusedItem, setFocusedItem, deleteItem, editOperation, editOperationDetail } = useStore();
+  const { createInsight, fetchInsights } = useInsightStore();
+  const [showInsightEditor, setShowInsightEditor] = useState(false);
   const isFocused =
     focusedItem?.id === operation.id && focusedItem?.level === 'operation';
+
+  // Count insights linked to this operation
+  const operationInsightCount = insights.filter(
+    (i) => i.linkedEntityType === 'operation' && i.linkedEntityId === operation.id
+  ).length;
 
   const {
     attributes,
@@ -54,6 +65,16 @@ export const Operation: React.FC<OperationProps> = ({
           }
           break;
       }
+    }
+  };
+
+  const handleCreateInsight = async (data: any) => {
+    try {
+      await createInsight(projectId, data);
+      await fetchInsights(projectId);
+      setShowInsightEditor(false);
+    } catch (error) {
+      console.error('Failed to create insight:', error);
     }
   };
 
@@ -88,10 +109,27 @@ export const Operation: React.FC<OperationProps> = ({
                   onSave={(name) => editOperation(projectId, activityId, taskId, operation.id, name)}
                   className="text-zinc-200"
                 />
-                <div className="mt-0.5">
+                <div className="mt-0.5 flex items-center gap-2">
                   <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-300 border border-amber-500/30">
                     operation
                   </span>
+                  {operationInsightCount > 0 && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs">
+                      <Lightbulb className="w-3 h-3" />
+                      {operationInsightCount}
+                    </span>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowInsightEditor(true);
+                    }}
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs hover:bg-yellow-500/20 transition-colors"
+                    title="Add insight for this operation"
+                  >
+                    <Plus className="w-3 h-3" />
+                    insight
+                  </button>
                 </div>
               </div>
               <button
@@ -121,6 +159,14 @@ export const Operation: React.FC<OperationProps> = ({
           </div>
         </div>
       </div>
+      {showInsightEditor && (
+        <InsightEditor
+          projectId={projectId}
+          prefilledEntity={{ type: 'operation', id: operation.id }}
+          onSave={handleCreateInsight}
+          onClose={() => setShowInsightEditor(false)}
+        />
+      )}
     </div>
   );
 };

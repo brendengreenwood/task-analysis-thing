@@ -6,6 +6,13 @@ import { HonoBindings, HonoVariables, MastraServer } from '@mastra/hono';
 import { toAISdkStream } from '@mastra/ai-sdk';
 
 import { mastra } from './mastra';
+import projectsRouter from './routes/projects';
+import personasRouter from './routes/personas';
+import sessionsRouter from './routes/sessions';
+import insightsRouter from './routes/insights';
+import activitiesRouter from './routes/activities';
+import tasksRouter from './routes/tasks';
+import operationsRouter from './routes/operations';
 
 const app = new Hono<{ Bindings: HonoBindings; Variables: HonoVariables }>();
 
@@ -23,6 +30,15 @@ app.use('*', cors({
 const server = new MastraServer({ app, mastra });
 
 await server.init();
+
+// Mount API routes
+app.route('/api/projects', projectsRouter);
+app.route('/api/personas', personasRouter);
+app.route('/api/sessions', sessionsRouter);
+app.route('/api/insights', insightsRouter);
+app.route('/api/activities', activitiesRouter);
+app.route('/api/tasks', tasksRouter);
+app.route('/api/operations', operationsRouter);
 
 // Chat endpoint for AI SDK streaming
 app.post('/chat/:agentId', async (c) => {

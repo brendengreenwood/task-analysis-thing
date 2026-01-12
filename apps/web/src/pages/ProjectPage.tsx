@@ -4,7 +4,9 @@ import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown } from 'lucid
 import { Activity } from '../components/Activity';
 import { AddItemForm } from '../components/AddItemForm';
 import { useStore } from '../store/useStore';
+import { useInsightStore } from '../store/insightStore';
 import { EditableText } from '../components/EditableText';
+import { ExportButton } from '../components/export/ExportButton';
 import {
   DndContext,
   DragEndEvent,
@@ -36,8 +38,9 @@ export const ProjectPage: React.FC = () => {
     expandAllTasks,
     collapseAllTasks
   } = useStore();
+  const { insights, fetchInsights } = useInsightStore();
   const currentProject = projects.find(p => p.id === projectId);
-  
+
   useEffect(() => {
     if (!currentProject) {
       navigate('/');
@@ -45,6 +48,12 @@ export const ProjectPage: React.FC = () => {
     }
     setCurrentProject(projectId!);
   }, [projectId, currentProject, navigate, setCurrentProject]);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchInsights(projectId);
+    }
+  }, [projectId, fetchInsights]);
 
   const handleAddActivity = (name: string) => {
     if (currentProject) {
@@ -158,17 +167,22 @@ export const ProjectPage: React.FC = () => {
   return (
     <div className="space-y-5">
       <div className="space-y-1.5 border-b border-zinc-700 pb-3">
-        <EditableText
-          value={currentProject.name}
-          onSave={handleEditProject}
-          className="text-base font-medium text-zinc-200 hover:bg-zinc-900 px-2 py-1 -ml-2"
-        />
-        <EditableText
-          value={currentProject.description}
-          onSave={handleEditDescription}
-          className="text-zinc-500 text-sm hover:bg-zinc-900 px-2 py-1 -ml-2 block"
-          placeholder="description"
-        />
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <EditableText
+              value={currentProject.name}
+              onSave={handleEditProject}
+              className="text-base font-medium text-zinc-200 hover:bg-zinc-900 px-2 py-1 -ml-2"
+            />
+            <EditableText
+              value={currentProject.description}
+              onSave={handleEditDescription}
+              className="text-zinc-500 text-sm hover:bg-zinc-900 px-2 py-1 -ml-2 block"
+              placeholder="description"
+            />
+          </div>
+          <ExportButton projectId={currentProject.id} projectName={currentProject.name} />
+        </div>
       </div>
 
       <div className="bg-[#0a0a0a] border border-zinc-700 p-5">
@@ -212,12 +226,13 @@ export const ProjectPage: React.FC = () => {
           >
             <div>
               {currentProject.activities.map((activity, index) => (
-                <Activity 
-                  key={activity.id} 
+                <Activity
+                  key={activity.id}
                   activity={activity}
                   projectId={currentProject.id}
                   index={index}
                   isLastActivity={index === currentProject.activities.length - 1}
+                  insights={insights}
                 />
               ))}
             </div>

@@ -17,6 +17,7 @@ export interface Activity {
   name: string;
   overview: string;
   expanded: boolean;
+  personaIds?: string[];
   tasks: Task[];
 }
 

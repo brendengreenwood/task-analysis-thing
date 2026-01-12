@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutGrid, HelpCircle, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutGrid, HelpCircle, Plus, ChevronLeft, ChevronRight, Users, Calendar, Lightbulb } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { HelpModal } from './HelpModal';
 import { AddItemForm } from './AddItemForm';
@@ -60,6 +60,51 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               isSidebarCollapsed ? 'hidden' : 'block'
             }`}>
               projects
+            </span>
+          </Link>
+
+          <Link
+            to="/personas"
+            className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+              location.pathname === '/personas' ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+            } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+            title="Personas"
+          >
+            <Users className="w-4 h-4 flex-shrink-0" />
+            <span className={`ml-2 transition-opacity duration-200 ${
+              isSidebarCollapsed ? 'hidden' : 'block'
+            }`}>
+              personas
+            </span>
+          </Link>
+
+          <Link
+            to="/sessions"
+            className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+              location.pathname === '/sessions' ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+            } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+            title="Sessions"
+          >
+            <Calendar className="w-4 h-4 flex-shrink-0" />
+            <span className={`ml-2 transition-opacity duration-200 ${
+              isSidebarCollapsed ? 'hidden' : 'block'
+            }`}>
+              sessions
+            </span>
+          </Link>
+
+          <Link
+            to="/insights"
+            className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+              location.pathname === '/insights' ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+            } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+            title="Insights"
+          >
+            <Lightbulb className="w-4 h-4 flex-shrink-0" />
+            <span className={`ml-2 transition-opacity duration-200 ${
+              isSidebarCollapsed ? 'hidden' : 'block'
+            }`}>
+              insights
             </span>
           </Link>
 
