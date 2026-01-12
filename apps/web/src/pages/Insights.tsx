@@ -7,6 +7,7 @@ import { usePersonaStore } from '../store/personaStore';
 import { useStore } from '../store/useStore';
 import { InsightList } from '../components/insights/InsightList';
 import { InsightEditor } from '../components/insights/InsightEditor';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export const Insights: React.FC = () => {
   const { projectId } = useParams();
@@ -15,6 +16,8 @@ export const Insights: React.FC = () => {
   const { insights, loading, fetchInsights, createInsight, updateInsight, deleteInsight } = useInsightStore();
   const { sessions, fetchSessions } = useSessionStore();
   const { personas, fetchPersonas } = usePersonaStore();
+
+  const currentProject = projects.find((p) => p.id === projectId);
 
   useEffect(() => {
     if (projectId) {
@@ -80,10 +83,17 @@ export const Insights: React.FC = () => {
     );
   }
 
-  const currentProject = projects.find((p) => p.id === projectId);
-
   return (
     <div>
+      {currentProject && (
+        <Breadcrumbs
+          items={[
+            { label: 'projects', href: '/' },
+            { label: currentProject.name, href: `/projects/${currentProject.id}` },
+            { label: 'insights' },
+          ]}
+        />
+      )}
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

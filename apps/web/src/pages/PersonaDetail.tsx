@@ -5,15 +5,20 @@ import { PersonaOverview } from '../components/persona-detail/PersonaOverview';
 import { PersonaWorkflows } from '../components/persona-detail/PersonaWorkflows';
 import { PersonaResearch } from '../components/persona-detail/PersonaResearch';
 import { PersonaInsights } from '../components/persona-detail/PersonaInsights';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { useStore } from '../store/useStore';
 
 type TabKey = 'overview' | 'workflows' | 'research' | 'insights' | 'mental-model';
 
 export const PersonaDetail: React.FC = () => {
   const { projectId, personaId } = useParams();
   const navigate = useNavigate();
+  const { projects } = useStore();
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [personaData, setPersonaData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const currentProject = projects.find((p) => p.id === projectId);
 
   useEffect(() => {
     if (!projectId || !personaId) {
@@ -64,14 +69,16 @@ export const PersonaDetail: React.FC = () => {
 
   return (
     <div className="space-y-5">
-      {/* Back navigation */}
-      <Link
-        to={`/projects/${projectId}/personas`}
-        className="inline-flex items-center space-x-1 text-sm text-zinc-500 hover:text-zinc-400 transition-colors"
-      >
-        <ChevronLeft className="w-4 h-4" />
-        <span>back to personas</span>
-      </Link>
+      {currentProject && (
+        <Breadcrumbs
+          items={[
+            { label: 'projects', href: '/' },
+            { label: currentProject.name, href: `/projects/${currentProject.id}` },
+            { label: 'personas', href: `/projects/${projectId}/personas` },
+            { label: personaData?.name || 'loading...' },
+          ]}
+        />
+      )}
 
       {/* Header */}
       <div className="flex items-start gap-4 border-b border-zinc-700 pb-4">

@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft, Calendar, Clock, User, Upload, FileText, MessageSquare, Quote, Lightbulb, Save } from 'lucide-react';
 import { InsightsSidebar } from '../components/sessions/InsightsSidebar';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { useStore } from '../store/useStore';
 
 type ContentMode = 'notes' | 'transcript';
 type InsightType = 'observation' | 'pattern' | 'quote' | 'pain_point';
@@ -23,9 +25,12 @@ interface SessionData {
 export const SessionDetail: React.FC = () => {
   const { projectId, sessionId } = useParams();
   const navigate = useNavigate();
+  const { projects } = useStore();
 
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const currentProject = projects.find((p) => p.id === projectId);
   const [mode, setMode] = useState<ContentMode>('notes');
   const [notes, setNotes] = useState('');
   const [transcript, setTranscript] = useState('');
@@ -172,16 +177,20 @@ export const SessionDetail: React.FC = () => {
 
   const color = getTypeColor(sessionData.type);
 
+  const sessionLabel = `${sessionData.type.replace('_', ' ')} - ${formatDate(sessionData.date)}`;
+
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col">
-      {/* Back navigation */}
-      <Link
-        to={`/projects/${projectId}/sessions`}
-        className="inline-flex items-center space-x-1 text-sm text-zinc-500 hover:text-zinc-400 transition-colors mb-4"
-      >
-        <ChevronLeft className="w-4 h-4" />
-        <span>back to sessions</span>
-      </Link>
+      {currentProject && (
+        <Breadcrumbs
+          items={[
+            { label: 'projects', href: '/' },
+            { label: currentProject.name, href: `/projects/${currentProject.id}` },
+            { label: 'sessions', href: `/projects/${projectId}/sessions` },
+            { label: sessionLabel },
+          ]}
+        />
+      )}
 
       {/* Header */}
       <div className="bg-[#0a0a0a] border border-zinc-700 p-4 mb-4">
