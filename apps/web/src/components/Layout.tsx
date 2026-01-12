@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { LayoutGrid, HelpCircle, Plus, ChevronLeft, ChevronRight, Users, Calendar, Lightbulb } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { LayoutGrid, HelpCircle, Plus, ChevronLeft, ChevronRight, Users, Calendar, Lightbulb, Workflow, Home } from 'lucide-react';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { HelpModal } from './HelpModal';
 import { AddItemForm } from './AddItemForm';
 import { ChatSidebar } from './ChatSidebar';
@@ -15,6 +15,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const location = useLocation();
+  const { projectId } = useParams();
+
+  // Check if we're inside a project
+  const isInProject = location.pathname.startsWith('/projects/') && projectId;
 
   return (
     <div className="min-h-screen flex">
@@ -33,95 +37,163 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
 
         <nav className="p-3 space-y-1 flex-1">
-          <button
-            onClick={() => setShowNewProjectForm(true)}
-            className={`w-full flex items-center px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition-colors ${
-              isSidebarCollapsed ? 'justify-center' : ''
-            }`}
-            title="New Project"
-          >
-            <Plus className="w-4 h-4 flex-shrink-0" />
-            <span className={`ml-2 transition-opacity duration-200 ${
-              isSidebarCollapsed ? 'hidden' : 'block'
-            }`}>
-              new project
-            </span>
-          </button>
+          {!isInProject ? (
+            // Global navigation (not in a project)
+            <>
+              <button
+                onClick={() => setShowNewProjectForm(true)}
+                className={`w-full flex items-center px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition-colors ${
+                  isSidebarCollapsed ? 'justify-center' : ''
+                }`}
+                title="New Project"
+              >
+                <Plus className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  new project
+                </span>
+              </button>
 
-          <Link
-            to="/"
-            className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
-              location.pathname === '/' ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
-            } ${isSidebarCollapsed ? 'justify-center' : ''}`}
-            title="Projects"
-          >
-            <LayoutGrid className="w-4 h-4 flex-shrink-0" />
-            <span className={`ml-2 transition-opacity duration-200 ${
-              isSidebarCollapsed ? 'hidden' : 'block'
-            }`}>
-              projects
-            </span>
-          </Link>
+              <Link
+                to="/"
+                className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+                  location.pathname === '/' ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                title="Projects"
+              >
+                <LayoutGrid className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  projects
+                </span>
+              </Link>
 
-          <Link
-            to="/personas"
-            className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
-              location.pathname === '/personas' ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
-            } ${isSidebarCollapsed ? 'justify-center' : ''}`}
-            title="Personas"
-          >
-            <Users className="w-4 h-4 flex-shrink-0" />
-            <span className={`ml-2 transition-opacity duration-200 ${
-              isSidebarCollapsed ? 'hidden' : 'block'
-            }`}>
-              personas
-            </span>
-          </Link>
+              <button
+                onClick={() => setIsHelpModalOpen(true)}
+                className={`w-full flex items-center px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-900 hover:text-zinc-400 transition-colors ${
+                  isSidebarCollapsed ? 'justify-center' : ''
+                }`}
+                title="About Analysis"
+              >
+                <HelpCircle className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  about
+                </span>
+              </button>
+            </>
+          ) : (
+            // Project-scoped navigation
+            <>
+              <Link
+                to="/"
+                className={`flex items-center px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-900 hover:text-zinc-400 transition-colors ${
+                  isSidebarCollapsed ? 'justify-center' : ''
+                }`}
+                title="Back to Projects"
+              >
+                <ChevronLeft className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  all projects
+                </span>
+              </Link>
 
-          <Link
-            to="/sessions"
-            className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
-              location.pathname === '/sessions' ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
-            } ${isSidebarCollapsed ? 'justify-center' : ''}`}
-            title="Sessions"
-          >
-            <Calendar className="w-4 h-4 flex-shrink-0" />
-            <span className={`ml-2 transition-opacity duration-200 ${
-              isSidebarCollapsed ? 'hidden' : 'block'
-            }`}>
-              sessions
-            </span>
-          </Link>
+              <Link
+                to={`/projects/${projectId}`}
+                className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+                  location.pathname === `/projects/${projectId}` ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                title="Dashboard"
+              >
+                <Home className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  dashboard
+                </span>
+              </Link>
 
-          <Link
-            to="/insights"
-            className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
-              location.pathname === '/insights' ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
-            } ${isSidebarCollapsed ? 'justify-center' : ''}`}
-            title="Insights"
-          >
-            <Lightbulb className="w-4 h-4 flex-shrink-0" />
-            <span className={`ml-2 transition-opacity duration-200 ${
-              isSidebarCollapsed ? 'hidden' : 'block'
-            }`}>
-              insights
-            </span>
-          </Link>
+              <Link
+                to={`/projects/${projectId}/task-analysis`}
+                className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+                  location.pathname === `/projects/${projectId}/task-analysis` ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                title="Task Analysis"
+              >
+                <Workflow className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  task analysis
+                </span>
+              </Link>
 
-          <button
-            onClick={() => setIsHelpModalOpen(true)}
-            className={`w-full flex items-center px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-900 hover:text-zinc-400 transition-colors ${
-              isSidebarCollapsed ? 'justify-center' : ''
-            }`}
-            title="About Analysis"
-          >
-            <HelpCircle className="w-4 h-4 flex-shrink-0" />
-            <span className={`ml-2 transition-opacity duration-200 ${
-              isSidebarCollapsed ? 'hidden' : 'block'
-            }`}>
-              about
-            </span>
-          </button>
+              <Link
+                to={`/projects/${projectId}/personas`}
+                className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+                  location.pathname === `/projects/${projectId}/personas` ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                title="Personas"
+              >
+                <Users className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  personas
+                </span>
+              </Link>
+
+              <Link
+                to={`/projects/${projectId}/sessions`}
+                className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+                  location.pathname === `/projects/${projectId}/sessions` ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                title="Sessions"
+              >
+                <Calendar className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  sessions
+                </span>
+              </Link>
+
+              <Link
+                to={`/projects/${projectId}/insights`}
+                className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+                  location.pathname === `/projects/${projectId}/insights` ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                title="Insights"
+              >
+                <Lightbulb className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  insights
+                </span>
+              </Link>
+
+              <button
+                onClick={() => setIsHelpModalOpen(true)}
+                className={`w-full flex items-center px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-900 hover:text-zinc-400 transition-colors ${
+                  isSidebarCollapsed ? 'justify-center' : ''
+                }`}
+                title="About Analysis"
+              >
+                <HelpCircle className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  about
+                </span>
+              </button>
+            </>
+          )}
         </nav>
 
         {/* Collapse toggle button */}

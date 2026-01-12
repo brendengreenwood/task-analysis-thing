@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Calendar } from 'lucide-react';
 import { useSessionStore, ResearchSession } from '../store/sessionStore';
 import { usePersonaStore } from '../store/personaStore';
@@ -7,19 +8,29 @@ import { SessionList } from '../components/sessions/SessionList';
 import { SessionEditor } from '../components/sessions/SessionEditor';
 
 export const Sessions: React.FC = () => {
-  const currentProjectId = useStore((state) => state.currentProjectId);
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const { setCurrentProject } = useStore();
   const { sessions, loading, fetchSessions, createSession, updateSession, deleteSession } = useSessionStore();
   const { personas, fetchPersonas } = usePersonaStore();
+
+  useEffect(() => {
+    if (projectId) {
+      setCurrentProject(projectId);
+    } else {
+      navigate('/');
+    }
+  }, [projectId, setCurrentProject, navigate]);
 
   const [showEditor, setShowEditor] = useState(false);
   const [editingSession, setEditingSession] = useState<ResearchSession | null>(null);
 
   useEffect(() => {
-    if (currentProjectId) {
-      fetchSessions(currentProjectId);
-      fetchPersonas(currentProjectId);
+    if (projectId) {
+      fetchSessions(projectId);
+      fetchPersonas(projectId);
     }
-  }, [currentProjectId, fetchSessions, fetchPersonas]);
+  }, [projectId, fetchSessions, fetchPersonas]);
 
   const handleCreate = () => {
     setEditingSession(null);
@@ -32,13 +43,13 @@ export const Sessions: React.FC = () => {
   };
 
   const handleSave = async (data: Partial<Omit<ResearchSession, 'id' | 'projectId'>>) => {
-    if (!currentProjectId) return;
+    if (!projectId) return;
 
     try {
       if (editingSession) {
         await updateSession(editingSession.id, data);
       } else {
-        await createSession(currentProjectId, data as any);
+        await createSession(projectId, data as any);
       }
       setShowEditor(false);
       setEditingSession(null);
@@ -57,7 +68,7 @@ export const Sessions: React.FC = () => {
     }
   };
 
-  if (!currentProjectId) {
+  if (!projectId) {
     return (
       <div className="text-center py-12">
         <Calendar className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
@@ -98,10 +109,10 @@ export const Sessions: React.FC = () => {
       )}
 
       {/* Editor modal */}
-      {showEditor && currentProjectId && (
+      {showEditor && projectId && (
         <SessionEditor
           session={editingSession}
-          projectId={currentProjectId}
+          projectId={projectId}
           onSave={handleSave}
           onClose={() => {
             setShowEditor(false);
