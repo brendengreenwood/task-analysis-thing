@@ -11,7 +11,7 @@ const client = createClient({
 });
 
 // Read and execute migration
-const migrationPath = join(__dirname, '../../drizzle/0000_many_beast.sql');
+const migrationPath = join(__dirname, '../../drizzle/0001_aromatic_marten_broadcloak.sql');
 const migrationSQL = readFileSync(migrationPath, 'utf-8');
 
 // Split by statement breakpoint and execute each statement

@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Users, Calendar, Lightbulb, Workflow } from 'lucide-react';
+import { Users, Calendar, Lightbulb, Workflow, Brain } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { usePersonaStore } from '../store/personaStore';
 import { useSessionStore } from '../store/sessionStore';
 import { useInsightStore } from '../store/insightStore';
+import { useMentalModelStore } from '../store/mentalModelStore';
 
 export const ProjectDashboard: React.FC = () => {
   const { projectId } = useParams();
@@ -13,6 +14,7 @@ export const ProjectDashboard: React.FC = () => {
   const { personas, fetchPersonas } = usePersonaStore();
   const { sessions, fetchSessions } = useSessionStore();
   const { insights, fetchInsights } = useInsightStore();
+  const { mentalModels, fetchMentalModels } = useMentalModelStore();
 
   const currentProject = projects.find((p) => p.id === projectId);
 
@@ -29,8 +31,9 @@ export const ProjectDashboard: React.FC = () => {
       fetchPersonas(projectId);
       fetchSessions(projectId);
       fetchInsights(projectId);
+      fetchMentalModels(projectId);
     }
-  }, [projectId, fetchPersonas, fetchSessions, fetchInsights]);
+  }, [projectId, fetchPersonas, fetchSessions, fetchInsights, fetchMentalModels]);
 
   if (!currentProject) {
     return null;
@@ -94,14 +97,27 @@ export const ProjectDashboard: React.FC = () => {
           <div className="text-xs text-zinc-500">insights</div>
         </Link>
 
+        {/* Mental Models */}
+        <Link
+          to={`/projects/${projectId}/mental-models`}
+          className="bg-[#0a0a0a] border border-zinc-700 p-4 hover:border-zinc-600 transition-colors"
+        >
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-1 h-12 bg-gradient-to-b from-purple-500 to-purple-700" />
+            <Brain className="w-5 h-5 text-purple-400" />
+          </div>
+          <div className="text-2xl font-medium text-zinc-200 mb-1">{mentalModels.length}</div>
+          <div className="text-xs text-zinc-500">mental models</div>
+        </Link>
+
         {/* Task Analysis */}
         <Link
           to={`/projects/${projectId}/task-analysis`}
           className="bg-[#0a0a0a] border border-zinc-700 p-4 hover:border-zinc-600 transition-colors"
         >
           <div className="flex items-start justify-between mb-3">
-            <div className="w-1 h-12 bg-gradient-to-b from-purple-500 to-purple-700" />
-            <Workflow className="w-5 h-5 text-purple-400" />
+            <div className="w-1 h-12 bg-gradient-to-b from-indigo-500 to-indigo-700" />
+            <Workflow className="w-5 h-5 text-indigo-400" />
           </div>
           <div className="text-2xl font-medium text-zinc-200 mb-1">
             {activityCount}
@@ -143,6 +159,13 @@ export const ProjectDashboard: React.FC = () => {
           >
             <Lightbulb className="w-4 h-4" />
             <span>browse insights</span>
+          </Link>
+          <Link
+            to={`/projects/${projectId}/mental-models`}
+            className="flex items-center gap-2 px-3 py-2 text-sm border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-200 transition-colors"
+          >
+            <Brain className="w-4 h-4" />
+            <span>view mental models</span>
           </Link>
         </div>
       </div>

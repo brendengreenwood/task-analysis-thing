@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutGrid, HelpCircle, Plus, ChevronLeft, ChevronRight, Users, Calendar, Lightbulb, Workflow, Home } from 'lucide-react';
+import { LayoutGrid, HelpCircle, Plus, ChevronLeft, ChevronRight, Users, Calendar, Lightbulb, Workflow, Home, Brain } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { HelpModal } from './HelpModal';
 import { AddItemForm } from './AddItemForm';
@@ -32,7 +32,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <h1 className={`text-base font-medium text-zinc-300 transition-opacity duration-200 ${
             isSidebarCollapsed ? 'opacity-0' : 'opacity-100'
           }`}>
-            task-analyzer v1.0
+            ux-researcher alpha
           </h1>
         </div>
 
@@ -175,6 +175,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   isSidebarCollapsed ? 'hidden' : 'block'
                 }`}>
                   insights
+                </span>
+              </Link>
+
+              <Link
+                to={`/projects/${projectId}/mental-models`}
+                className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
+                  location.pathname.startsWith(`/projects/${projectId}/mental-models`) ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                title="Mental Models"
+              >
+                <Brain className="w-4 h-4 flex-shrink-0" />
+                <span className={`ml-2 transition-opacity duration-200 ${
+                  isSidebarCollapsed ? 'hidden' : 'block'
+                }`}>
+                  mental models
                 </span>
               </Link>
 

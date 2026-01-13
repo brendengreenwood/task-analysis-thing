@@ -7,6 +7,8 @@ import { TaskAnalysisPage } from './pages/TaskAnalysisPage';
 import { Personas } from './pages/Personas';
 import { Sessions } from './pages/Sessions';
 import { Insights } from './pages/Insights';
+import { MentalModels } from './pages/MentalModels';
+import { MentalModelDetail } from './pages/MentalModelDetail';
 import { useStore } from './store/useStore';
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
         <Route path="/projects/:projectId/personas" element={<Personas />} />
         <Route path="/projects/:projectId/sessions" element={<Sessions />} />
         <Route path="/projects/:projectId/insights" element={<Insights />} />
+        <Route path="/projects/:projectId/mental-models" element={<MentalModels />} />
+        <Route path="/projects/:projectId/mental-models/:modelId" element={<MentalModelDetail />} />
       </Routes>
     </Layout>
   );

@@ -226,6 +226,98 @@ class ApiClient {
     });
   }
 
+  // Mental Models
+  async getMentalModels(projectId: string) {
+    return this.request<any[]>(`/projects/${projectId}/mental-models`);
+  }
+
+  async getMentalModel(id: string) {
+    return this.request<any>(`/mental-models/${id}`);
+  }
+
+  async createMentalModel(projectId: string, data: { name: string; description?: string; personaId?: string }) {
+    return this.request<any>(`/projects/${projectId}/mental-models`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateMentalModel(id: string, data: { name?: string; description?: string; personaId?: string }) {
+    return this.request<any>(`/mental-models/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteMentalModel(id: string) {
+    return this.request<any>(`/mental-models/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Concepts
+  async createConcept(mentalModelId: string, data: { name: string; description?: string; userLanguage?: string; systemEquivalent?: string; x?: number; y?: number }) {
+    return this.request<any>(`/mental-models/${mentalModelId}/concepts`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateConcept(id: string, data: { name?: string; description?: string; userLanguage?: string; systemEquivalent?: string; x?: number; y?: number }) {
+    return this.request<any>(`/concepts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteConcept(id: string) {
+    return this.request<any>(`/concepts/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Beliefs
+  async createBelief(mentalModelId: string, data: { content: string; reality?: string; isMismatch?: boolean; severity?: string; insightIds?: string[] }) {
+    return this.request<any>(`/mental-models/${mentalModelId}/beliefs`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateBelief(id: string, data: { content?: string; reality?: string; isMismatch?: boolean; severity?: string; insightIds?: string[] }) {
+    return this.request<any>(`/beliefs/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteBelief(id: string) {
+    return this.request<any>(`/beliefs/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Concept Relationships
+  async createRelationship(mentalModelId: string, data: { fromConceptId: string; toConceptId: string; relationshipType?: string; label?: string }) {
+    return this.request<any>(`/mental-models/${mentalModelId}/relationships`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateRelationship(id: string, data: { fromConceptId?: string; toConceptId?: string; relationshipType?: string; label?: string }) {
+    return this.request<any>(`/relationships/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteRelationship(id: string) {
+    return this.request<any>(`/relationships/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Export
   async exportProject(id: string) {
     return this.request<any>(`/projects/${id}/export`);

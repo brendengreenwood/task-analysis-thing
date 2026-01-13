@@ -7,6 +7,7 @@ import { usePersonaStore } from '../store/personaStore';
 import { useStore } from '../store/useStore';
 import { InsightList } from '../components/insights/InsightList';
 import { InsightEditor } from '../components/insights/InsightEditor';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export const Insights: React.FC = () => {
   const { projectId } = useParams();
@@ -84,6 +85,15 @@ export const Insights: React.FC = () => {
 
   return (
     <div>
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: 'Projects', href: '/' },
+          { label: currentProject?.name || 'Project', href: `/projects/${projectId}` },
+          { label: 'Insights' },
+        ]}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

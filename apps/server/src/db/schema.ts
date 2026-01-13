@@ -84,3 +84,46 @@ export const insights = sqliteTable('insights', {
   linkedEntityId: text('linked_entity_id'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 });
+
+// Mental Models
+export const mentalModels = sqliteTable('mental_models', {
+  id: text('id').primaryKey(),
+  projectId: text('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  personaId: text('persona_id').references(() => personas.id, { onDelete: 'set null' }),
+  name: text('name').notNull(),
+  description: text('description'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+});
+
+// Concepts (nodes in the mental model canvas)
+export const concepts = sqliteTable('concepts', {
+  id: text('id').primaryKey(),
+  mentalModelId: text('mental_model_id').notNull().references(() => mentalModels.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  description: text('description'),
+  userLanguage: text('user_language'),
+  systemEquivalent: text('system_equivalent'),
+  x: integer('x').notNull().default(0),
+  y: integer('y').notNull().default(0),
+});
+
+// Beliefs (user assumptions vs reality)
+export const beliefs = sqliteTable('beliefs', {
+  id: text('id').primaryKey(),
+  mentalModelId: text('mental_model_id').notNull().references(() => mentalModels.id, { onDelete: 'cascade' }),
+  content: text('content').notNull(),
+  reality: text('reality'),
+  isMismatch: integer('is_mismatch', { mode: 'boolean' }).default(false),
+  severity: text('severity', { enum: ['low', 'medium', 'high', 'critical'] }),
+  insightIds: text('insight_ids', { mode: 'json' }).$type<string[]>().default([]),
+});
+
+// Concept Relationships (edges in the mental model canvas)
+export const conceptRelationships = sqliteTable('concept_relationships', {
+  id: text('id').primaryKey(),
+  mentalModelId: text('mental_model_id').notNull().references(() => mentalModels.id, { onDelete: 'cascade' }),
+  fromConceptId: text('from_concept_id').notNull().references(() => concepts.id, { onDelete: 'cascade' }),
+  toConceptId: text('to_concept_id').notNull().references(() => concepts.id, { onDelete: 'cascade' }),
+  relationshipType: text('relationship_type'),
+  label: text('label'),
+});
