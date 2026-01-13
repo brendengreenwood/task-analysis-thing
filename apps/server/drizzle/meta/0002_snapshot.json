@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b3d10cb0-c686-459f-9007-baf4993cf4d2",
-  "prevId": "4987cc77-b818-4735-96d8-002964a7ea51",
+  "id": "fd7898fa-2fa8-466d-8308-d2835850b865",
+  "prevId": "b3d10cb0-c686-459f-9007-baf4993cf4d2",
   "tables": {
     "activities": {
       "name": "activities",
@@ -552,6 +552,13 @@
         },
         "notes": {
           "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "transcript": {
+          "name": "transcript",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

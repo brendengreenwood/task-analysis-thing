@@ -167,12 +167,11 @@ export const TaskAnalysisPage: React.FC = () => {
 
   return (
     <div className="space-y-5">
-      {/* Breadcrumbs */}
       <Breadcrumbs
         items={[
-          { label: 'Projects', href: '/' },
+          { label: 'projects', href: '/' },
           { label: currentProject.name, href: `/projects/${currentProject.id}` },
-          { label: 'Task Analysis' },
+          { label: 'task analysis' },
         ]}
       />
 

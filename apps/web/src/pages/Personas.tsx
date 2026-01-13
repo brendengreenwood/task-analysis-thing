@@ -79,14 +79,15 @@ export const Personas: React.FC = () => {
 
   return (
     <div>
-      {/* Breadcrumbs */}
-      <Breadcrumbs
-        items={[
-          { label: 'Projects', href: '/' },
-          { label: currentProject?.name || 'Project', href: `/projects/${projectId}` },
-          { label: 'Personas' },
-        ]}
-      />
+      {currentProject && (
+        <Breadcrumbs
+          items={[
+            { label: 'projects', href: '/' },
+            { label: currentProject.name, href: `/projects/${currentProject.id}` },
+            { label: 'personas' },
+          ]}
+        />
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">

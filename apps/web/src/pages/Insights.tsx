@@ -17,6 +17,8 @@ export const Insights: React.FC = () => {
   const { sessions, fetchSessions } = useSessionStore();
   const { personas, fetchPersonas } = usePersonaStore();
 
+  const currentProject = projects.find((p) => p.id === projectId);
+
   useEffect(() => {
     if (projectId) {
       setCurrentProject(projectId);
@@ -81,19 +83,17 @@ export const Insights: React.FC = () => {
     );
   }
 
-  const currentProject = projects.find((p) => p.id === projectId);
-
   return (
     <div>
-      {/* Breadcrumbs */}
-      <Breadcrumbs
-        items={[
-          { label: 'Projects', href: '/' },
-          { label: currentProject?.name || 'Project', href: `/projects/${projectId}` },
-          { label: 'Insights' },
-        ]}
-      />
-
+      {currentProject && (
+        <Breadcrumbs
+          items={[
+            { label: 'projects', href: '/' },
+            { label: currentProject.name, href: `/projects/${currentProject.id}` },
+            { label: 'insights' },
+          ]}
+        />
+      )}
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

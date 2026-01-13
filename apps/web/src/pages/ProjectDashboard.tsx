@@ -6,6 +6,7 @@ import { usePersonaStore } from '../store/personaStore';
 import { useSessionStore } from '../store/sessionStore';
 import { useInsightStore } from '../store/insightStore';
 import { useMentalModelStore } from '../store/mentalModelStore';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export const ProjectDashboard: React.FC = () => {
   const { projectId } = useParams();
@@ -48,6 +49,13 @@ export const ProjectDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: 'projects', href: '/' },
+          { label: currentProject.name },
+        ]}
+      />
+
       {/* Project Header */}
       <div className="border-b border-zinc-700 pb-4">
         <h1 className="text-xl font-medium text-zinc-200 mb-1">{currentProject.name}</h1>
