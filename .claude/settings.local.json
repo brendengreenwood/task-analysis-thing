@@ -44,7 +44,10 @@
       "Bash(git pull:*)",
       "mcp__ide__getDiagnostics",
       "Bash(gh pr create:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(cmd /c \"taskkill /PID 281480 /F\")"
     ]
   }
 }

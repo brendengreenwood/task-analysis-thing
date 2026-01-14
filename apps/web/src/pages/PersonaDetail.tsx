@@ -5,6 +5,7 @@ import { PersonaOverview } from '../components/persona-detail/PersonaOverview';
 import { PersonaWorkflows } from '../components/persona-detail/PersonaWorkflows';
 import { PersonaResearch } from '../components/persona-detail/PersonaResearch';
 import { PersonaInsights } from '../components/persona-detail/PersonaInsights';
+import { PersonaMentalModel } from '../components/persona-detail/PersonaMentalModel';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { useStore } from '../store/useStore';
 
@@ -129,11 +130,7 @@ export const PersonaDetail: React.FC = () => {
         {activeTab === 'workflows' && <PersonaWorkflows persona={personaData} />}
         {activeTab === 'research' && <PersonaResearch persona={personaData} />}
         {activeTab === 'insights' && <PersonaInsights persona={personaData} />}
-        {activeTab === 'mental-model' && (
-          <div className="text-center py-12">
-            <p className="text-sm text-zinc-500">mental model visualization coming soon...</p>
-          </div>
-        )}
+        {activeTab === 'mental-model' && <PersonaMentalModel persona={personaData} />}
       </div>
     </div>
   );

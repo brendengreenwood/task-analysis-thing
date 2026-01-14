@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Users, Calendar, Lightbulb, Workflow, Brain } from 'lucide-react';
+import { Users, Workflow, Inbox } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { usePersonaStore } from '../store/personaStore';
 import { useSessionStore } from '../store/sessionStore';
@@ -47,6 +47,15 @@ export const ProjectDashboard: React.FC = () => {
     0
   );
 
+  // Calculate unassigned items for Inbox
+  const unassignedSessions = sessions.filter(s => !s.personaId).length;
+  const unlinkedInsights = insights.filter(i => !i.linkedEntityId && !i.linkedEntityType).length;
+  const projectLevelMentalModels = mentalModels.filter(m => !m.personaId).length;
+  const unassignedActivities = currentProject.activities.filter(activity =>
+    !activity.personaIds || activity.personaIds.length === 0
+  ).length;
+  const totalUnassigned = unassignedSessions + unlinkedInsights + projectLevelMentalModels + unassignedActivities;
+
   return (
     <div className="space-y-6">
       <Breadcrumbs
@@ -65,7 +74,7 @@ export const ProjectDashboard: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Personas */}
         <Link
           to={`/projects/${projectId}/personas`}
@@ -77,45 +86,6 @@ export const ProjectDashboard: React.FC = () => {
           </div>
           <div className="text-2xl font-medium text-zinc-200 mb-1">{personas.length}</div>
           <div className="text-xs text-zinc-500">personas</div>
-        </Link>
-
-        {/* Sessions */}
-        <Link
-          to={`/projects/${projectId}/sessions`}
-          className="bg-[#0a0a0a] border border-zinc-700 p-4 hover:border-zinc-600 transition-colors"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-1 h-12 bg-gradient-to-b from-emerald-500 to-emerald-700" />
-            <Calendar className="w-5 h-5 text-emerald-400" />
-          </div>
-          <div className="text-2xl font-medium text-zinc-200 mb-1">{sessions.length}</div>
-          <div className="text-xs text-zinc-500">research sessions</div>
-        </Link>
-
-        {/* Insights */}
-        <Link
-          to={`/projects/${projectId}/insights`}
-          className="bg-[#0a0a0a] border border-zinc-700 p-4 hover:border-zinc-600 transition-colors"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-1 h-12 bg-gradient-to-b from-yellow-500 to-yellow-700" />
-            <Lightbulb className="w-5 h-5 text-yellow-400" />
-          </div>
-          <div className="text-2xl font-medium text-zinc-200 mb-1">{insights.length}</div>
-          <div className="text-xs text-zinc-500">insights</div>
-        </Link>
-
-        {/* Mental Models */}
-        <Link
-          to={`/projects/${projectId}/mental-models`}
-          className="bg-[#0a0a0a] border border-zinc-700 p-4 hover:border-zinc-600 transition-colors"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-1 h-12 bg-gradient-to-b from-purple-500 to-purple-700" />
-            <Brain className="w-5 h-5 text-purple-400" />
-          </div>
-          <div className="text-2xl font-medium text-zinc-200 mb-1">{mentalModels.length}</div>
-          <div className="text-xs text-zinc-500">mental models</div>
         </Link>
 
         {/* Task Analysis */}
@@ -134,12 +104,25 @@ export const ProjectDashboard: React.FC = () => {
             activities · {taskCount} tasks · {operationCount} operations
           </div>
         </Link>
+
+        {/* Inbox */}
+        <Link
+          to={`/projects/${projectId}/inbox`}
+          className="bg-[#0a0a0a] border border-zinc-700 p-4 hover:border-zinc-600 transition-colors"
+        >
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-1 h-12 bg-gradient-to-b from-orange-500 to-orange-700" />
+            <Inbox className="w-5 h-5 text-orange-400" />
+          </div>
+          <div className="text-2xl font-medium text-zinc-200 mb-1">{totalUnassigned}</div>
+          <div className="text-xs text-zinc-500">unassigned items</div>
+        </Link>
       </div>
 
       {/* Quick Actions */}
       <div className="bg-[#0a0a0a] border border-zinc-700 p-5">
         <h2 className="text-sm font-medium text-zinc-300 mb-3">quick actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Link
             to={`/projects/${projectId}/task-analysis`}
             className="flex items-center gap-2 px-3 py-2 text-sm border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-200 transition-colors"
@@ -155,25 +138,11 @@ export const ProjectDashboard: React.FC = () => {
             <span>manage personas</span>
           </Link>
           <Link
-            to={`/projects/${projectId}/sessions`}
+            to={`/projects/${projectId}/inbox`}
             className="flex items-center gap-2 px-3 py-2 text-sm border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-200 transition-colors"
           >
-            <Calendar className="w-4 h-4" />
-            <span>view sessions</span>
-          </Link>
-          <Link
-            to={`/projects/${projectId}/insights`}
-            className="flex items-center gap-2 px-3 py-2 text-sm border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-200 transition-colors"
-          >
-            <Lightbulb className="w-4 h-4" />
-            <span>browse insights</span>
-          </Link>
-          <Link
-            to={`/projects/${projectId}/mental-models`}
-            className="flex items-center gap-2 px-3 py-2 text-sm border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-200 transition-colors"
-          >
-            <Brain className="w-4 h-4" />
-            <span>view mental models</span>
+            <Inbox className="w-4 h-4" />
+            <span>review inbox</span>
           </Link>
         </div>
       </div>

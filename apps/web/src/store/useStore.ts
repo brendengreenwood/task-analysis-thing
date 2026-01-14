@@ -21,7 +21,7 @@ interface State {
   loadProject: (projectId: string) => Promise<void>;
 
   // Activity actions
-  addActivity: (projectId: string, name: string) => Promise<void>;
+  addActivity: (projectId: string, name: string) => Promise<string>;
   editActivity: (projectId: string, activityId: string, name: string) => Promise<void>;
   editActivityOverview: (projectId: string, activityId: string, overview: string) => Promise<void>;
   deleteActivity: (projectId: string, activityId: string) => Promise<void>;
@@ -210,6 +210,8 @@ export const useStore = create<State>((set, get) => ({
             : project
         )
       }));
+
+      return newActivity.id;
     } catch (error) {
       console.error('Failed to create activity:', error);
       throw error;

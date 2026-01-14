@@ -36,14 +36,15 @@
 - [x] API endpoints for all entities
 - [x] Frontend stores using API
 - [x] Personas CRUD + detail view with tabs
-- [x] Sessions CRUD
+- [x] Sessions CRUD + detail view (transcript upload, insight extraction)
 - [x] Insights CRUD
 - [x] JSON export
 - [x] Project hierarchy (project as container)
 - [x] Project dashboard with stats
-
-### 🔨 In Progress
-- [ ] **Session detail view** — transcript upload, insight extraction, note-taking
+- [x] Mental Models (canvas, beliefs, vocabulary)
+- [x] Persona-centric navigation (all research rolls up under personas)
+- [x] Inbox for unassigned research
+- [x] Breadcrumb navigation system
 
 ### 📋 Backlog
 Everything below, organized by phase.
@@ -60,26 +61,20 @@ Core research tool functionality.
 | SQLite + Drizzle database | ✅ Done |
 | Projects CRUD | ✅ Done |
 | Personas CRUD + detail view | ✅ Done |
-| Sessions CRUD | ✅ Done |
+| Sessions CRUD + detail view | ✅ Done |
 | Task Analysis | ✅ Done |
 | Insights CRUD | ✅ Done |
 | JSON Export | ✅ Done |
 | Project hierarchy | ✅ Done |
 | Project dashboard | ✅ Done |
-
-### Post-MVP: Session Enhancement (Current)
-
-| Feature | Status |
-|---------|--------|
-| Session detail view as research tool | 🔨 In Progress |
-| Transcript upload (.txt, .vtt, .srt) | 🔨 In Progress |
-| Text selection → create insight | 🔨 In Progress |
-| Insights sidebar in session view | 🔨 In Progress |
-| "+ New Session" from persona research tab | 🔨 In Progress |
+| Transcript upload & insight extraction | ✅ Done |
+| Mental Models | ✅ Done |
+| Persona-centric navigation | ✅ Done |
+| Inbox for unassigned research | ✅ Done |
 
 ---
 
-### Phase 2: Project Dashboard & Visualization
+### Phase 2: Project Dashboard & Visualization ✅ (Complete)
 What you see when you open a project.
 
 | Feature | Description | Concept File |
@@ -93,7 +88,7 @@ What you see when you open a project.
 
 ---
 
-### Phase 3: Mental Models
+### Phase 3: Mental Models ✅ (Complete)
 Capture how users think, not just what they do.
 
 | Feature | Description | Concept File |
@@ -128,12 +123,23 @@ The power feature — talk instead of click.
 
 | Feature | Description |
 |---------|-------------|
+| **Inbox Enhancements** | |
+| Inbox count badge | Sidebar shows "Inbox (3)" for unprocessed research |
+| AI suggest assignment | "This session mentions forecasting — link to Sales Manager?" |
+| Bulk assign | Select multiple insights/sessions, assign to same persona |
+| Smart defaults | "Last 3 sessions were Sales Manager, use same?" |
+| **Visualizations** | |
+| Pain map on dashboard | Activities with friction heat indicators |
+| Insight cluster map | Show where insights concentrate |
+| Research coverage view | Which personas/workflows have data backing them |
+| **Exports** | |
+| Persona cards export | PDF/PNG for decks |
+| Journey map builder | Timeline visualization |
+| Workflow diagram export | For engineering handoff |
+| **Other** | |
 | Artifact uploads | Screenshots, recordings, documents |
 | Tags system | Categorize insights by theme |
 | Affinity mapping board | Drag insights into groups |
-| Journey map builder | Timeline visualization |
-| Workflow diagram export | For engineering handoff |
-| Persona cards export | PDF/PNG for decks |
 | Git auto-export | JSON versioning on save |
 | Search | Query across all entities |
 
@@ -155,10 +161,11 @@ The power feature — talk instead of click.
 1. ~~**Project hierarchy restructure**~~ ✅ Done
 2. ~~**Persona detail view**~~ ✅ Done
 3. ~~**Project Dashboard**~~ ✅ Done
-4. **Session detail view** — Real research capture tool with transcript upload, insight extraction (in progress)
-5. **AI Research Assistant** — Chat-based research capture and querying
-6. **Mental Models** — Concept canvas, beliefs, vocabulary mapping
-7. **Everything else** — Polish as needed
+4. ~~**Session detail view**~~ ✅ Done
+5. ~~**Mental Models**~~ ✅ Done
+6. ~~**Persona-centric navigation + Inbox**~~ ✅ Done
+7. **AI Research Assistant** — Chat-based research capture and querying
+8. **Polish** — Inbox enhancements, visualizations, exports
 
 ---
 
@@ -187,13 +194,20 @@ The power feature — talk instead of click.
 
 ## Next Action
 
-Tell Claude Code:
+**Option A: AI Research Assistant**
 ```
-Read the project structure. We need to restructure navigation so:
-1. Project list is the main/home view
-2. Opening a project shows a Dashboard as the landing page
-3. Sidebar within a project has: Dashboard, Personas, Sessions, Task Analysis, Insights
-4. Task Analysis contains the existing activities → tasks → operations
+Read docs/ai-assistant-feature.md for the full spec.
 
-This is the feature/project-nav branch. Don't change the database - this is frontend/navigation only.
+Build the AI Research Assistant. Start with:
+1. Chat panel UI (slide-out from right side, persistent across views)
+2. Basic conversation with Mastra
+3. Session debrief mode — "I just finished an interview" → creates session, extracts insights
+4. Context awareness — agent knows current project, view, selected entity
+```
+
+**Option B: Polish — Inbox Enhancements**
+```
+Add an unread count badge to the Inbox in the sidebar showing how many 
+unassigned sessions/insights/activities exist. Users should see at a glance 
+if there's research that needs to be triaged.
 ```
