@@ -1,177 +1,263 @@
-import React from 'react';
-import { Workflow, AlertCircle, TrendingDown } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Workflow } from 'lucide-react';
+import { Activity } from '../Activity';
+import { AddItemForm } from '../AddItemForm';
+import { useStore } from '../../store/useStore';
+import { useInsightStore } from '../../store/insightStore';
+import { usePersonaStore } from '../../store/personaStore';
+import {
+  DndContext,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverEvent,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 interface PersonaWorkflowsProps {
   persona: any;
 }
 
 export const PersonaWorkflows: React.FC<PersonaWorkflowsProps> = ({ persona }) => {
-  const activities = persona.activities || [];
+  const {
+    projects,
+    reorderActivities,
+    reorderTasks,
+    reorderOperations,
+    addActivity,
+    expandAllActivities,
+    collapseAllActivities,
+  } = useStore();
+  const { insights, fetchInsights } = useInsightStore();
+  const { linkToActivity } = usePersonaStore();
 
-  // Calculate pain points for each activity
-  const calculateActivityPain = (activity: any) => {
-    const activityInsights = persona.insights?.filter((insight: any) => {
-      if (insight.linkedEntityType === 'activity' && insight.linkedEntityId === activity.id) {
-        return true;
-      }
+  const currentProject = projects.find(p => p.id === persona.projectId);
 
-      // Check if insight is linked to tasks/operations within this activity
-      const taskIds = activity.tasks?.map((t: any) => t.id) || [];
-      const operationIds = activity.tasks?.flatMap((t: any) => t.operations?.map((o: any) => o.id) || []) || [];
+  useEffect(() => {
+    if (persona.projectId) {
+      fetchInsights(persona.projectId);
+    }
+  }, [persona.projectId, fetchInsights]);
 
-      if (insight.linkedEntityType === 'task' && taskIds.includes(insight.linkedEntityId)) {
-        return true;
-      }
+  // Filter activities to only show ones linked to this persona
+  const personaActivities = currentProject?.activities.filter(activity =>
+    activity.personaIds?.includes(persona.id)
+  ) || [];
 
-      if (insight.linkedEntityType === 'operation' && operationIds.includes(insight.linkedEntityId)) {
-        return true;
-      }
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
-      return false;
-    }) || [];
-
-    const painPoints = activityInsights.filter((i: any) => i.type === 'pain_point');
-
-    const critical = painPoints.filter((p: any) => p.severity === 'critical').length;
-    const high = painPoints.filter((p: any) => p.severity === 'high').length;
-    const medium = painPoints.filter((p: any) => p.severity === 'medium').length;
-    const low = painPoints.filter((p: any) => p.severity === 'low').length;
-
-    const frictionScore = (critical * 4) + (high * 3) + (medium * 2) + (low * 1);
-
-    return {
-      total: painPoints.length,
-      critical,
-      high,
-      medium,
-      low,
-      frictionScore,
-    };
-  };
-
-  const FrictionBar: React.FC<{ pain: any }> = ({ pain }) => {
-    const maxScore = 20; // Arbitrary max for visualization
-    const percentage = Math.min((pain.frictionScore / maxScore) * 100, 100);
-
-    let barColor = 'bg-zinc-700';
-    if (pain.frictionScore > 10) barColor = 'bg-red-500';
-    else if (pain.frictionScore > 6) barColor = 'bg-orange-500';
-    else if (pain.frictionScore > 3) barColor = 'bg-yellow-500';
-    else if (pain.frictionScore > 0) barColor = 'bg-blue-500';
-
-    return (
-      <div className="space-y-1">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-zinc-500">friction score</span>
-          <span className="text-zinc-400 font-medium">{pain.frictionScore}</span>
-        </div>
-        <div className="h-1.5 bg-zinc-900 border border-zinc-700">
-          <div
-            className={`h-full ${barColor} transition-all duration-300`}
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
-        {pain.total > 0 && (
-          <div className="flex items-center gap-2 text-xs">
-            {pain.critical > 0 && <span className="text-red-400">{pain.critical} critical</span>}
-            {pain.high > 0 && <span className="text-orange-400">{pain.high} high</span>}
-            {pain.medium > 0 && <span className="text-yellow-400">{pain.medium} medium</span>}
-            {pain.low > 0 && <span className="text-blue-400">{pain.low} low</span>}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const getImportanceColor = (importance: string | null) => {
-    switch (importance) {
-      case 'critical':
-        return 'text-red-400';
-      case 'high':
-        return 'text-orange-400';
-      case 'medium':
-        return 'text-yellow-400';
-      case 'low':
-        return 'text-blue-400';
-      default:
-        return 'text-zinc-500';
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const element = document.querySelector(`[data-id="${active.id}"]`);
+    if (element) {
+      element.classList.add('dragging');
     }
   };
 
-  if (activities.length === 0) {
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+
+    if (active.id !== over.id) {
+      const overElement = document.querySelector(`[data-id="${over.id}"]`);
+      if (overElement) {
+        const indicator = document.createElement('div');
+        indicator.className = 'drop-indicator h-1 bg-blue-400 rounded-full my-2 transform transition-all duration-200 scale-x-0';
+        overElement.parentNode?.insertBefore(indicator, overElement);
+        requestAnimationFrame(() => {
+          indicator.classList.add('scale-x-100');
+        });
+      }
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+    document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+
+    if (!over || !currentProject) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId === overId) return;
+
+    const activity = currentProject.activities.find(a =>
+      a.id === activeId ||
+      a.tasks.some(t => t.id === activeId || t.operations.some(o => o.id === activeId))
+    );
+
+    if (!activity) return;
+
+    const findIndices = (items: any[], activeId: string, overId: string) => {
+      const oldIndex = items.findIndex(item => item.id === activeId);
+      const newIndex = items.findIndex(item => item.id === overId);
+      return { oldIndex, newIndex };
+    };
+
+    if (currentProject.activities.some(a => a.id === activeId)) {
+      const { oldIndex, newIndex } = findIndices(currentProject.activities, activeId as string, overId as string);
+      reorderActivities(currentProject.id, oldIndex, newIndex);
+      return;
+    }
+
+    const task = activity.tasks.find(t => t.id === activeId);
+    if (task) {
+      const { oldIndex, newIndex } = findIndices(activity.tasks, activeId as string, overId as string);
+      reorderTasks(currentProject.id, activity.id, oldIndex, newIndex);
+      return;
+    }
+
+    const taskWithOperation = activity.tasks.find(t =>
+      t.operations.some(o => o.id === activeId)
+    );
+    if (taskWithOperation) {
+      const { oldIndex, newIndex } = findIndices(
+        taskWithOperation.operations,
+        activeId as string,
+        overId as string
+      );
+      reorderOperations(currentProject.id, activity.id, taskWithOperation.id, oldIndex, newIndex);
+    }
+  };
+
+  const handleAddActivity = async (name: string) => {
+    if (currentProject) {
+      // Create activity and get the returned ID
+      const newActivityId = await addActivity(currentProject.id, name);
+      // Link the new activity to this persona
+      await linkToActivity(persona.id, newActivityId);
+    }
+  };
+
+  if (!currentProject) {
     return (
       <div className="text-center py-12">
         <Workflow className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-        <p className="text-sm text-zinc-500">no workflows linked to this persona</p>
+        <p className="text-sm text-zinc-500">project not found</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {activities.map((activity: any) => {
-        const pain = calculateActivityPain(activity);
-
-        return (
-          <div key={activity.id} className="bg-[#0a0a0a] border border-zinc-700 p-4">
-            {/* Activity Header */}
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-zinc-200 mb-1">{activity.name}</h3>
-                {activity.overview && (
-                  <p className="text-xs text-zinc-500 mb-2">{activity.overview}</p>
-                )}
-                <div className="flex items-center gap-4 text-xs">
-                  {activity.frequency && (
-                    <span className="text-zinc-500">
-                      frequency: <span className="text-zinc-400">{activity.frequency}</span>
-                    </span>
-                  )}
-                  {activity.importance && (
-                    <span className="text-zinc-500">
-                      importance:{' '}
-                      <span className={getImportanceColor(activity.importance)}>
-                        {activity.importance}
-                      </span>
-                    </span>
-                  )}
-                </div>
-              </div>
-              {pain.total > 0 && (
-                <div className="ml-4">
-                  <AlertCircle className="w-5 h-5 text-red-400" />
-                </div>
-              )}
+      {/* Header */}
+      <div className="bg-[#0a0a0a] border border-zinc-700 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-medium text-zinc-300 mb-1">task analysis</h3>
+            <p className="text-xs text-zinc-500">
+              {persona.name}'s activities broken down into tasks and operations
+            </p>
+          </div>
+          {personaActivities.length > 0 && (
+            <div className="flex items-center gap-2 text-xs">
+              <button
+                onClick={expandAllActivities}
+                className="text-zinc-500 hover:text-zinc-400 transition-colors"
+                title="Expand all activities"
+              >
+                expand all
+              </button>
+              <span className="text-zinc-600">/</span>
+              <button
+                onClick={collapseAllActivities}
+                className="text-zinc-500 hover:text-zinc-400 transition-colors"
+                title="Collapse all activities"
+              >
+                collapse all
+              </button>
             </div>
+          )}
+        </div>
 
-            {/* Friction Bar */}
-            <FrictionBar pain={pain} />
+        <AddItemForm
+          level="activity"
+          onSubmit={handleAddActivity}
+          onClose={() => {}}
+        />
+      </div>
 
-            {/* Tasks */}
-            {activity.tasks && activity.tasks.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <p className="text-xs text-zinc-500 mb-2">{activity.tasks.length} tasks</p>
-                {activity.tasks.map((task: any) => (
-                  <div key={task.id} className="pl-3 border-l border-zinc-700">
-                    <p className="text-xs text-zinc-400">{task.name}</p>
-                    {task.goal && (
-                      <p className="text-xs text-zinc-600 mt-0.5">→ {task.goal}</p>
-                    )}
-                  </div>
+      {personaActivities.length === 0 ? (
+        <div className="bg-[#0a0a0a] border border-zinc-700 p-12 text-center">
+          <Workflow className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
+          <p className="text-sm text-zinc-400 mb-2">no workflows yet</p>
+          <p className="text-xs text-zinc-600">
+            Create an activity above to start mapping {persona.name}'s workflow
+          </p>
+        </div>
+      ) : (
+        <div className="bg-[#0a0a0a] border border-zinc-700 p-5">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={personaActivities.map(a => a.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div>
+                {personaActivities.map((activity, index) => (
+                  <Activity
+                    key={activity.id}
+                    activity={activity}
+                    projectId={currentProject.id}
+                    index={index}
+                    isLastActivity={index === personaActivities.length - 1}
+                    insights={insights}
+                  />
                 ))}
               </div>
-            )}
-          </div>
-        );
-      })}
-
-      {/* Summary */}
-      <div className="bg-zinc-900 border border-zinc-700 p-4">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-zinc-400">total workflows</span>
-          <span className="text-lg font-medium text-zinc-200">{activities.length}</span>
+            </SortableContext>
+          </DndContext>
         </div>
-      </div>
+      )}
+
+      {/* Summary Stats */}
+      {personaActivities.length > 0 && (
+        <div className="bg-zinc-900 border border-zinc-700 p-4">
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <div className="text-lg font-medium text-zinc-200">{personaActivities.length}</div>
+              <div className="text-xs text-zinc-500">activities</div>
+            </div>
+            <div>
+              <div className="text-lg font-medium text-zinc-200">
+                {personaActivities.reduce((acc, a) => acc + a.tasks.length, 0)}
+              </div>
+              <div className="text-xs text-zinc-500">tasks</div>
+            </div>
+            <div>
+              <div className="text-lg font-medium text-zinc-200">
+                {personaActivities.reduce(
+                  (acc, a) => acc + a.tasks.reduce((tAcc, t) => tAcc + t.operations.length, 0),
+                  0
+                )}
+              </div>
+              <div className="text-xs text-zinc-500">operations</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

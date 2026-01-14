@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { db } from '../db/index';
-import { projects, activities, tasks, operations, personas, sessions, insights, personaActivities } from '../db/schema';
+import { projects, activities, tasks, operations, personas, sessions, insights, personaActivities, mentalModels } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
 const app = new Hono();
@@ -185,6 +185,57 @@ app.post('/:projectId/insights', async (c) => {
   } catch (error) {
     console.error('Error creating insight:', error);
     return c.json({ error: 'Failed to create insight' }, 500);
+  }
+});
+
+// GET /api/projects/:projectId/mental-models - List mental models
+app.get('/:projectId/mental-models', async (c) => {
+  try {
+    const projectId = c.req.param('projectId');
+
+    const projectMentalModels = await db
+      .select()
+      .from(mentalModels)
+      .where(eq(mentalModels.projectId, projectId));
+
+    return c.json(projectMentalModels);
+  } catch (error) {
+    console.error('Error fetching mental models:', error);
+    return c.json({ error: 'Failed to fetch mental models' }, 500);
+  }
+});
+
+// POST /api/projects/:projectId/mental-models - Create mental model
+app.post('/:projectId/mental-models', async (c) => {
+  try {
+    const projectId = c.req.param('projectId');
+    const body = await c.req.json();
+
+    // Verify project exists
+    const project = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, projectId))
+      .get();
+
+    if (!project) {
+      return c.json({ error: 'Project not found' }, 404);
+    }
+
+    const newMentalModel = {
+      id: `mental-model-${Date.now()}`,
+      projectId,
+      personaId: body.personaId || null,
+      name: body.name,
+      description: body.description || null,
+      createdAt: new Date(),
+    };
+
+    await db.insert(mentalModels).values(newMentalModel);
+    return c.json(newMentalModel, 201);
+  } catch (error) {
+    console.error('Error creating mental model:', error);
+    return c.json({ error: 'Failed to create mental model' }, 500);
   }
 });
 

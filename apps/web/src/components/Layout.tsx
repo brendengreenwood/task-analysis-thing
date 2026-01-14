@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutGrid, HelpCircle, Plus, ChevronLeft, ChevronRight, Users, Calendar, Lightbulb, Workflow, Home } from 'lucide-react';
+import { LayoutGrid, HelpCircle, Plus, ChevronLeft, ChevronRight, Users, Inbox, Workflow, Home } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { HelpModal } from './HelpModal';
 import { AddItemForm } from './AddItemForm';
@@ -32,7 +32,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <h1 className={`text-base font-medium text-zinc-300 transition-opacity duration-200 ${
             isSidebarCollapsed ? 'opacity-0' : 'opacity-100'
           }`}>
-            task-analyzer v1.0
+            ux-researcher alpha
           </h1>
         </div>
 
@@ -136,7 +136,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link
                 to={`/projects/${projectId}/personas`}
                 className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
-                  location.pathname === `/projects/${projectId}/personas` ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+                  location.pathname.startsWith(`/projects/${projectId}/personas`) ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
                 } ${isSidebarCollapsed ? 'justify-center' : ''}`}
                 title="Personas"
               >
@@ -149,32 +149,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Link>
 
               <Link
-                to={`/projects/${projectId}/sessions`}
+                to={`/projects/${projectId}/inbox`}
                 className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
-                  location.pathname === `/projects/${projectId}/sessions` ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
+                  location.pathname === `/projects/${projectId}/inbox` ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
                 } ${isSidebarCollapsed ? 'justify-center' : ''}`}
-                title="Sessions"
+                title="Inbox"
               >
-                <Calendar className="w-4 h-4 flex-shrink-0" />
+                <Inbox className="w-4 h-4 flex-shrink-0" />
                 <span className={`ml-2 transition-opacity duration-200 ${
                   isSidebarCollapsed ? 'hidden' : 'block'
                 }`}>
-                  sessions
-                </span>
-              </Link>
-
-              <Link
-                to={`/projects/${projectId}/insights`}
-                className={`flex items-center px-3 py-1.5 text-sm hover:bg-zinc-900 transition-colors ${
-                  location.pathname === `/projects/${projectId}/insights` ? 'text-zinc-200 bg-zinc-900' : 'text-zinc-500'
-                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
-                title="Insights"
-              >
-                <Lightbulb className="w-4 h-4 flex-shrink-0" />
-                <span className={`ml-2 transition-opacity duration-200 ${
-                  isSidebarCollapsed ? 'hidden' : 'block'
-                }`}>
-                  insights
+                  inbox
                 </span>
               </Link>
 

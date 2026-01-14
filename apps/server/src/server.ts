@@ -13,6 +13,10 @@ import insightsRouter from './routes/insights';
 import activitiesRouter from './routes/activities';
 import tasksRouter from './routes/tasks';
 import operationsRouter from './routes/operations';
+import mentalModelsRouter from './routes/mental-models';
+import conceptsRouter from './routes/concepts';
+import beliefsRouter from './routes/beliefs';
+import relationshipsRouter from './routes/relationships';
 
 const app = new Hono<{ Bindings: HonoBindings; Variables: HonoVariables }>();
 
@@ -39,6 +43,10 @@ app.route('/api/insights', insightsRouter);
 app.route('/api/activities', activitiesRouter);
 app.route('/api/tasks', tasksRouter);
 app.route('/api/operations', operationsRouter);
+app.route('/api/mental-models', mentalModelsRouter);
+app.route('/api/concepts', conceptsRouter);
+app.route('/api/beliefs', beliefsRouter);
+app.route('/api/relationships', relationshipsRouter);
 
 // Chat endpoint for AI SDK streaming
 app.post('/chat/:agentId', async (c) => {
